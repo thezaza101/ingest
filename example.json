@@ -1,0 +1,37 @@
+{
+	"metadata": {
+		"id": "5b3eb4707",
+		"name": "Definitions Catalogue",
+		"description": "The Definitions Catalogue Rest API allows you to search and browse for data definitions used by the Australian Government",
+		"logo": "https://api.gov.au/img/catalogue_brand.png",
+		"features": {
+			"registration_required": true,
+			"technology": "REST/JSON",
+			"status": "published"
+		},
+		"tags": [
+			"metadata",
+			"definitions"
+		],
+		"topics": [
+			"wofg",
+			"api.gov.au"
+		]
+	},
+	"assets":[
+		{
+			"type":"api_description",
+			"misc":[],
+			"engine":{
+				"name":"SingleMarkdownWithFrontMatter",
+				"resources":[
+					{
+						"role":"markdown",
+						"uri":"https://raw.githubusercontent.com/apigovau/api-gov-au-definitions/master/api-documentation.md",
+						"mechanism":"poll"
+					}
+				]
+			}
+		}
+	]
+}
