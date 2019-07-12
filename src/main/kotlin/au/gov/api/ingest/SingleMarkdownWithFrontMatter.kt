@@ -1,4 +1,5 @@
 package au.gov.api.ingest
+import au.gov.api.Service.ServiceDescription
 import org.yaml.snakeyaml.Yaml
 
 
@@ -10,7 +11,7 @@ class SingleMarkdownWithFrontMatter(rawContent:String){
     val lines = rawContent.lines()
     val pages:List<String>
     val yaml:Map<String, Any>
-    val serviceDescription:ServiceDescription
+    val serviceDescription: ServiceDescription
     val name:String
     val description:String
     val tags:List<String>

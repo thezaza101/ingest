@@ -1,4 +1,4 @@
-package au.gov.api.ingest
+package au.gov.api.ingest.Service
 
 import com.beust.klaxon.JsonObject
 import java.net.URL

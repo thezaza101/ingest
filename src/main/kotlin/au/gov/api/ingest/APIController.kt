@@ -17,6 +17,9 @@ import com.beust.klaxon.Parser
 import com.beust.klaxon.JsonObject
 
 import au.gov.api.config.*
+import au.gov.api.ingest.Service.GitHub
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 
 @RestController
 class APIController {
@@ -29,7 +32,7 @@ class APIController {
     private lateinit var environment: Environment
 
     @Autowired
-    private lateinit var ghapi:GitHub
+    private lateinit var ghapi: GitHub
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     class UnauthorisedToModifyServices() : RuntimeException()
@@ -64,6 +67,12 @@ class APIController {
         return true
     }
 
+    @EventListener(ApplicationReadyEvent::class)
+    private fun test() {
+        var x = PipelineBuilder(PipelineBuilder.getTextOfFlie("https://raw.githubusercontent.com/apigovau/ingest/master/example.json"))
+        x.buildPipeline()
+        x.executePipes()
+    }
     data class Event(var key:String = "", var action:String = "", var type:String = "", var name:String = "", var reason:String = "")
 
     private fun logEvent(request:HttpServletRequest, action:String, type:String, name:String, reason:String) {

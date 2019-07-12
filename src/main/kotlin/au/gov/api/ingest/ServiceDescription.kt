@@ -1,4 +1,4 @@
-package au.gov.api.ingest
+package au.gov.api.Service
 
 import com.sun.org.apache.xpath.internal.operations.Bool
 import java.time.LocalDateTime
