@@ -31,14 +31,16 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
     var outputSd:ServiceDescription? = null
 
     override fun execute() {
-        val id = meta.id!!
-        val name = meta.name!!
-        val description = meta.description!!
+        val id = manifest.metadata.id!!
+        val name = manifest.metadata.name!!
+        val description = manifest.metadata.description!!
         val pages = getSDPages()
-        val logo = meta.logo!!
-        val space = meta.features.space!!
+        val logo = manifest.metadata.logo!!
+        val space = manifest.metadata.features.space!!
+        val insrc = manifest.assets[manifest.assetIdx].engine.resources.first().uri!!
+        val vis =  true
 
-        outputSd = ServiceDescription(id,name,description,pages, mutableListOf(),logo,space)
+        outputSd = ServiceDescription(id,name,description,pages, mutableListOf(),logo,"",insrc,space,vis)
     }
     override fun getOutput(): Any {
         when (outputSd==null) {

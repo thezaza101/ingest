@@ -5,14 +5,16 @@ import java.net.URL
 class Pipeline {
 
     var ingestObjs:MutableList<Any> = mutableListOf()
-    var metadata:Metadata? = Metadata()
-    constructor(meta:Metadata) {metadata = meta}
+    var manifest:Manifest? = Manifest()
+    constructor(meta:Manifest, assetIdx:Int) {
+        manifest = meta
+        manifest!!.assetIdx = assetIdx}
 
     var pipeline:MutableList<PipeObject> = mutableListOf()
 
     fun addToPipeline(input:PipeObject) {
         var element = input
-        element.meta = metadata!!
+        element.manifest = manifest!!
         pipeline.add(element)
     }
     fun finaliseData() {
@@ -50,7 +52,7 @@ abstract class PipeObject {
     }
     abstract fun execute()
     abstract val type:PipeType
-    var meta:Metadata = Metadata()
+    var manifest:Manifest = Manifest()
 }
 
 

@@ -20,8 +20,9 @@ class PipelineBuilder {
     }
 
     fun buildPipeline() {
+        var idxOfAsset = 0
         for (asset in Manifest.assets) {
-            var pl = Pipeline(Manifest.metadata)
+            var pl = Pipeline(Manifest,idxOfAsset)
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
                     "poll" -> pl.addToPipeline(PolledData(resource.uri!!))
@@ -35,6 +36,7 @@ class PipelineBuilder {
                 "api_description" -> pl.addToPipeline(ServiceDescriptionIngestor())
             }
             Pipes.add(pl)
+            idxOfAsset++
         }
     }
 
@@ -66,6 +68,7 @@ class PipelineBuilder {
 //Manifest
 class Manifest {
     var metadata: Metadata = Metadata()
+    var assetIdx = 0
     var assets = ArrayList<Assets>()
 }
 

@@ -31,16 +31,6 @@ class APIController {
     @Autowired
     private lateinit var environment: Environment
 
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    class UnauthorisedToModifyServices() : RuntimeException()
-    class UnauthorisedToViewServices() : RuntimeException()
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    class NoContentFound(override val message: String?) : java.lang.Exception()
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    class InvallidRequest(override val message: String?) : java.lang.Exception()
-
     private fun isAuthorisedToSaveService(request:HttpServletRequest, space:String):Boolean{
         if(environment.getActiveProfiles().contains("prod")){
             val AuthURI = Config.get("AuthURI")
@@ -65,6 +55,7 @@ class APIController {
     }
 
     @EventListener(ApplicationReadyEvent::class)
+    @GetMapping("/test")
     private fun test() {
         var x = PipelineBuilder(PipelineBuilder.getTextOfFlie("https://raw.githubusercontent.com/apigovau/ingest/master/example.json"))
         x.buildPipeline()
