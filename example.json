@@ -24,7 +24,7 @@
 			"type":"api_description",
 			"misc":[],
 			"engine":{
-				"name":["StripFrontMatter","SingleMarkdownToServiceDesign"],
+				"names":["StripFrontMatter","SingleMarkdownToServiceDesign"],
 				"resources":[
 					{
 						"role":"markdown",
