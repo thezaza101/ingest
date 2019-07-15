@@ -17,7 +17,7 @@ import com.beust.klaxon.Parser
 import com.beust.klaxon.JsonObject
 
 import au.gov.api.config.*
-import au.gov.api.ingest.Service.GitHub
+//import au.gov.api.ingest.Service.GitHub
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 
@@ -30,9 +30,6 @@ class APIController {
 
     @Autowired
     private lateinit var environment: Environment
-
-    @Autowired
-    private lateinit var ghapi: GitHub
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     class UnauthorisedToModifyServices() : RuntimeException()

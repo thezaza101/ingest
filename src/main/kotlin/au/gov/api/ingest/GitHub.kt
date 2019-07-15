@@ -1,4 +1,4 @@
-package au.gov.api.ingest.Service
+/*package au.gov.api.ingest.Service
 
 import com.beust.klaxon.JsonObject
 import java.net.URL
@@ -48,4 +48,4 @@ class GitHub{
             return result
         }
     }
-}
+}*/

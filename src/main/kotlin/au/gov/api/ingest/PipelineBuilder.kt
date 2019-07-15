@@ -4,6 +4,10 @@ import java.net.URL
 import java.util.ArrayList
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.nio.channels.Pipe
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.kotlinFunction
 
 
 class PipelineBuilder {
@@ -23,14 +27,20 @@ class PipelineBuilder {
                     "poll" -> pl.addToPipeline(PolledData(resource.uri!!))
                 }
             }
-            when(asset.engine.name) {
-                "SingleMarkdownWithFrontMatter" -> pl.addToPipeline(SingleMarkdownToServiceDesignEngine())
+            for (eng in asset.engine.names) {
+                pl.addToPipeline(getClassFromString("au.gov.api.ingest.${eng}Engine")!!.getConstructor().newInstance() as PipeObject)
             }
+
             when (asset.type){
                 "api_description" -> pl.addToPipeline(ServiceDescriptionIngestor())
             }
             Pipes.add(pl)
         }
+    }
+
+
+    fun getClassFromString(className:String): Class<*>? {
+        return Class.forName(className)
     }
 
     fun executePipes() {
@@ -74,6 +84,8 @@ class Features {
     var registration_required: Boolean = false
     var technology: String? = null
     var status: String? = null
+    var space: String? = null
+
 }
 
 
@@ -84,7 +96,7 @@ class Assets {
 }
 
 class EngineDec {
-    var name: String? = null
+    var names = ArrayList<String>()
     var resources = ArrayList<Resources>()
 }
 

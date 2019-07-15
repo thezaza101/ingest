@@ -1,4 +1,4 @@
-package au.gov.api.ingest
+/*package au.gov.api.ingest
 
 import org.junit.Assert
 import org.junit.Test
@@ -81,3 +81,4 @@ ${content}
     }
 
 }
+*/
