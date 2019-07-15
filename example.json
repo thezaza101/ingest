@@ -7,6 +7,7 @@
 		"features": {
 			"registration_required": true,
 			"technology": "REST/JSON",
+			"space": "apigovau",
 			"status": "published"
 		},
 		"tags": [
@@ -23,11 +24,11 @@
 			"type":"api_description",
 			"misc":[],
 			"engine":{
-				"name":"SingleMarkdownWithFrontMatter",
+				"name":["StripFrontMatter","SingleMarkdownToServiceDesign"],
 				"resources":[
 					{
 						"role":"markdown",
-						"uri":"https://raw.githubusercontent.com/apigovau/api-gov-au-definitions/master/api-documentation.md",
+						"uri":"https://gist.githubusercontent.com/thezaza101/de0ee57c20a1be2cae5bdf5d1873ce4a/raw/5a78d26589f8e1e984431d07ed56db4050fcb7b4/api-documentation.md",
 						"mechanism":"poll"
 					}
 				]
