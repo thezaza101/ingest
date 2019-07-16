@@ -1,4 +1,4 @@
-package au.gov.api.ingest
+/*package au.gov.api.ingest
 
 import javax.servlet.http.HttpServletRequest
 
@@ -55,3 +55,4 @@ class URLHelper {
     }
 
 }
+*/

@@ -30,7 +30,8 @@ class Pipeline {
     fun finaliseIngest() {
         pipeline.filter { it.type == PipeObject.PipeType.Ingestor }
                 .forEach { (it as Ingestor).setData(ingestObjs.last())
-                    it.execute() }
+                    it.execute()
+                    ingestObjs.add(it.output)}
     }
     fun finalise() {
         finaliseData()
@@ -42,6 +43,9 @@ class Pipeline {
     fun execute() {
         finalise()
         ingest()
+    }
+    fun getLastPipelineOnject():Any {
+        return ingestObjs.last()
     }
 
 }

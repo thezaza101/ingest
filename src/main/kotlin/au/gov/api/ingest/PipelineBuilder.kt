@@ -1,28 +1,23 @@
 package au.gov.api.ingest
 
 import java.net.URL
-import java.util.ArrayList
-import com.fasterxml.jackson.databind.ObjectMapper
-import java.nio.channels.Pipe
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.kotlinFunction
-
 
 class PipelineBuilder {
 
     var Pipes:MutableList<Pipeline> = mutableListOf()
-    var Manifest:Manifest = Manifest()
+    var ManifestRef:Manifest = Manifest()
 
     constructor(manifestString: String){
-        readMnifest(manifestString)
+        ManifestRef = Manifest.readMnifest(manifestString)
+    }
+    constructor(manifest: Manifest){
+        ManifestRef = manifest
     }
 
     fun buildPipeline() {
         var idxOfAsset = 0
-        for (asset in Manifest.assets) {
-            var pl = Pipeline(Manifest,idxOfAsset)
+        for (asset in ManifestRef.assets) {
+            var pl = Pipeline(ManifestRef,idxOfAsset)
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
                     "poll" -> pl.addToPipeline(PolledData(resource.uri!!))
@@ -45,66 +40,26 @@ class PipelineBuilder {
         return Class.forName(className)
     }
 
-    fun executePipes() {
-        Pipes.forEach { it.execute() }
+    fun executePipes():MutableList<Any> {
+        var outputs:MutableList<Any> = mutableListOf()
+        Pipes.forEach { it.execute()
+            outputs.add(it.getLastPipelineOnject())}
+
+        return MapPipeOutputs(outputs)
     }
-
-    fun readMnifest(manifestString:String) {
-        Manifest = ObjectMapper().readValue(manifestString, Manifest::class.java)
-    }
-
-    fun buildPipes() {
-
+    private fun MapPipeOutputs(outputs:MutableList<Any>) : MutableList<Any> {
+        var newOutputs:MutableList<Any> = mutableListOf()
+        for (i in 0 until ManifestRef.assets.count()) {
+            when(ManifestRef.assets[i].type) {
+                "api_description" -> {newOutputs.add(outputs[i] as String)}
+                else -> newOutputs.add(outputs[i])
+            }
+        }
+        return newOutputs
     }
 
     companion object{
         @JvmStatic
         fun getTextOfFlie(uri:String):String = URL(uri).readText()
     }
-
-}
-
-
-//Manifest
-class Manifest {
-    var metadata: Metadata = Metadata()
-    var assetIdx = 0
-    var assets = ArrayList<Assets>()
-}
-
-class Metadata {
-    var id: String? = null
-    var name: String? = null
-    var description: String? = null
-    var logo: String? = null
-    var features: Features = Features()
-    var tags = ArrayList<String>()
-    var misc = ArrayList<Pair<String,String>>()
-    var topics = ArrayList<String>()
-}
-
-class Features {
-    var registration_required: Boolean = false
-    var technology: String? = null
-    var status: String? = null
-    var space: String? = null
-
-}
-
-
-class Assets {
-    var type: String? = null
-    var misc = ArrayList<Pair<String,String>>()
-    var engine: EngineDec = EngineDec()
-}
-
-class EngineDec {
-    var names = ArrayList<String>()
-    var resources = ArrayList<Resources>()
-}
-
-class Resources {
-    var role: String? = null
-    var uri: String? = null
-    var mechanism: String? = null
 }

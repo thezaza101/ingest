@@ -54,13 +54,13 @@ dependencies {
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 
     //compile 'org.springframework.data:spring-data-commons'
-    //compile 'org.springframework:spring-jdbc'
-    //compile 'javax.transaction:javax.transaction-api'
-    //compile 'org.postgresql:postgresql:9.4.1212'
-    //compile 'com.zaxxer:HikariCP:2.6.0'
-    //compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'org.springframework:spring-jdbc'
+    compile 'javax.transaction:javax.transaction-api'
+    compile 'org.postgresql:postgresql:9.4.1212'
+    compile 'com.zaxxer:HikariCP:2.6.0'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
 
-    //testCompile 'com.opentable.components:otj-pg-embedded:0.12.5'
+    testCompile 'com.opentable.components:otj-pg-embedded:0.12.5'
 
     compile 'khttp:khttp:0.1.0'
 

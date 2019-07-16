@@ -17,6 +17,7 @@ import com.beust.klaxon.Parser
 import com.beust.klaxon.JsonObject
 
 import au.gov.api.config.*
+import com.fasterxml.jackson.databind.ObjectMapper
 //import au.gov.api.ingest.Service.GitHub
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
@@ -24,12 +25,80 @@ import org.springframework.context.event.EventListener
 @RestController
 class APIController {
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    class Unauthorised() : RuntimeException()
 
     @Autowired
     private lateinit var request: HttpServletRequest
 
     @Autowired
     private lateinit var environment: Environment
+
+    @Autowired
+    private lateinit var repository: IngestorRepository
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/manifest")
+    fun setManifest(request:HttpServletRequest, @RequestBody mf: Manifest,
+                   @RequestParam(required = false, defaultValue = "false") preview: Boolean) : String {
+        if(isAuthorisedToSaveService(request, mf.metadata.features.space!!)) {
+            if (!preview) {
+
+                if (mf.metadata.id.isNullOrBlank() && !isManifestUnique(mf)) return "This resource already exists"
+
+                var pipeOutputs = ExecuteManifest(mf)
+                if (mf.metadata.id.isNullOrBlank())
+                {
+                    mf.metadata.id = pipeOutputs.first().toString()
+                }
+                repository.save(mf)
+                logEvent(request,"Posted","Manifest",mf.metadata.name!!,"Posted", ObjectMapper().writeValueAsString(mf))
+
+                return ObjectMapper().writeValueAsString(pipeOutputs)
+
+            } else {
+                previewManifest(mf)
+                return "Not implimented"
+            }
+        } else {
+            throw Unauthorised()
+        }
+    }
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)  // 200
+    @DeleteMapping("/manifest/{id}")
+    fun deleteManifest(@PathVariable id:String, request:HttpServletRequest) {
+        val manifest = repository.findById(id)
+
+        if(isAuthorisedToSaveService(request, manifest.metadata.features.space!!)) {
+            repository.delete(id)
+            logEvent(request,"Deleted","Manifest",manifest.metadata.id!!,"Deleted")
+        }
+
+        throw Unauthorised()
+    }
+
+    private fun previewManifest(mf: Manifest) {
+
+    }
+
+    private fun isManifestUnique(mf: Manifest) : Boolean {
+        val existingManifests = repository.findAll()
+        existingManifests
+                .forEach { if(it.metadata.name == mf.metadata.name &&
+                        it.metadata.features.space == mf.metadata.features.space) return false }
+        return true
+    }
+
+
+    private fun ExecuteManifest(mf: Manifest):MutableList<Any>{
+        var pipe = PipelineBuilder(mf)
+        pipe.buildPipeline()
+        var outputs = pipe.executePipes()
+        return outputs
+    }
 
     private fun isAuthorisedToSaveService(request:HttpServletRequest, space:String):Boolean{
         if(environment.getActiveProfiles().contains("prod")){
@@ -45,25 +114,18 @@ class APIController {
 
 
             val authorisationRequest = get(AuthURI + "api/canWrite",
-                                            params=mapOf("space" to space),
-                                            auth=BasicAuthorization(user, pass)
-                                       )
+                    params=mapOf("space" to space),
+                    auth=BasicAuthorization(user, pass)
+            )
             if(authorisationRequest.statusCode != 200) return false
             return authorisationRequest.text == "true"
         }
         return true
     }
 
-    @EventListener(ApplicationReadyEvent::class)
-    @GetMapping("/test")
-    private fun test() {
-        var x = PipelineBuilder(PipelineBuilder.getTextOfFlie("https://raw.githubusercontent.com/apigovau/ingest/master/example.json"))
-        x.buildPipeline()
-        x.executePipes()
-    }
-    data class Event(var key:String = "", var action:String = "", var type:String = "", var name:String = "", var reason:String = "")
+    data class Event(var key:String = "", var action:String = "", var type:String = "", var name:String = "", var reason:String = "", var content:String = "")
 
-    private fun logEvent(request:HttpServletRequest, action:String, type:String, name:String, reason:String) {
+    private fun logEvent(request:HttpServletRequest, action:String, type:String, name:String, reason:String,content:String = "") {
         Thread(Runnable {
             print("Logging Event...")
             // http://www.baeldung.com/get-user-in-spring-security
@@ -72,7 +134,7 @@ class APIController {
             if (raw==null) throw RuntimeException()
             val user = String(Base64.getDecoder().decode(raw.removePrefix("Basic "))).split(":")[0]
             val parser:Parser = Parser()
-            var eventPayload:JsonObject = parser.parse(StringBuilder(Klaxon().toJsonString(Event(user,action,type,name,reason)))) as JsonObject
+            var eventPayload:JsonObject = parser.parse(StringBuilder(Klaxon().toJsonString(Event(user,action,type,name,reason,content)))) as JsonObject
             val eventAuth = System.getenv("LogAuthKey")
             val eventAuthUser = eventAuth.split(":")[0]
             val eventAuthPass = eventAuth.split(":")[1]
@@ -80,7 +142,6 @@ class APIController {
             println("Status:"+x.statusCode)
         }).start()
     }
-
 
 	fun writableSpaces(request:HttpServletRequest):List<String>{
 
@@ -110,135 +171,4 @@ class APIController {
 
 
 	}
-
-/*
-    @CrossOrigin
-    @GetMapping("/new")
-    fun newService(request:HttpServletRequest, @RequestParam space:String):ServiceDescription{
-        val service = ServiceDescription("NewServiceName", "NewServiceDescription", listOf("# Page1"), listOf(), "")
-
-        if(isAuthorisedToSaveService(request, space)) {
-            service.metadata.space=space
-            service.metadata.visibility = false
-            repository.save(service)
-            try {
-                logEvent(request,"Created","Service",service.id!!,service.revisions.first().content.name)
-            }
-            catch (e:Exception)
-            { println(e.message)}
-
-            return service
-        }
-
-        throw UnauthorisedToModifyServices()
-    }
-
-
-  
-    @CrossOrigin
-    @GetMapping("/indexWritable")
-    fun indexWritable(request:HttpServletRequest): IndexDTO {
-        val output = mutableListOf<IndexServiceDTO>()
-        val spaces = writableSpaces(request)
-        for(service in repository.findAll()){
-				if(service.metadata.space in spaces || "admin" in spaces) output.add(IndexServiceDTO(service.id!!, service.currentContent().name, service.currentContent().description, service.tags, service.logo, service.metadata))
-        }
-        return IndexDTO(output)
-    }
-
-  @CrossOrigin
-    @GetMapping("/service/{id}")
-    fun getService(request:HttpServletRequest, @PathVariable id: String): ServiceDescriptionContent {
-        val auth = isAuthorisedToSaveService(request,"admin")
-        try{
-            val service = repository.findById(id,auth)
-            return service.currentContent()
-        } catch (e:Exception){
-            throw UnauthorisedToViewServices()
-        }
-    }
-
-
-    data class ServiceDescriptionRevisionMetadata (var id:String, var timestamp: String)
-    @CrossOrigin
-    @GetMapping("/service/{id}/revisions")
-    fun getServiceRevisions(request:HttpServletRequest, @PathVariable id: String): List<ServiceDescriptionRevisionMetadata> {
-        val auth = isAuthorisedToSaveService(request,"admin")
-        try{
-            val service = repository.findById(id,auth)
-            var outputList = mutableListOf<ServiceDescriptionRevisionMetadata>()
-            service.revisions.forEachIndexed { index, element ->
-                outputList.add(ServiceDescriptionRevisionMetadata(element.id,element.time))
-            }
-            return outputList
-        } catch (e:Exception){
-            throw UnauthorisedToViewServices()
-        }
-    }
-
-     @ResponseStatus(HttpStatus.CREATED)  // 201
-    @CrossOrigin
-    @PostMapping("/service")
-    fun setService(@RequestBody revision: ServiceDescriptionContent, request:HttpServletRequest): ServiceDescription {
-
-        val service = ServiceDescription(revision.name, revision.description, revision.pages, listOf(), "")
-        
-        if(isAuthorisedToSaveService(request, service.metadata.space)) {
-            repository.save(service)
-            try {
-                logEvent(request,"Created","Service",service.id!!,revision.name)
-            }
-            catch (e:Exception)
-            { println(e.message)}
-            return service
-        }
-
-        throw UnauthorisedToModifyServices()
-    }
-
-    @CrossOrigin
-    @ResponseStatus(HttpStatus.OK)  // 200
-    @PostMapping("/service/{id}")
-    fun reviseService(@PathVariable id:String, @RequestBody revision: ServiceDescriptionContent, request:HttpServletRequest): ServiceDescriptionContent {
-        val service = repository.findById(id)
-
-        if(isAuthorisedToSaveService(request, service.metadata.space)) {
-
-            service.revise(revision.name, revision.description, revision.pages)
-
-            repository.save(service)
-            var toRevision = service.revisions.count()
-            var fromRevision = toRevision-1
-            try {
-                logEvent(request,"Updated","Service",service.id!!,"Revision from $fromRevision to $toRevision")
-            }
-            catch (e:Exception)
-            { println(e.message)}
-            return service.currentContent()
-        }
-
-        throw UnauthorisedToModifyServices()
-    }
-
-
-    @CrossOrigin
-    @ResponseStatus(HttpStatus.OK)  // 200
-    @DeleteMapping("/service/{id}")
-    fun deleteService(@PathVariable id:String, request:HttpServletRequest) {
-        val service = repository.findById(id, true)
-
-        if(isAuthorisedToSaveService(request, service.metadata.space)) {
-
-            repository.delete(id)
-            try {
-                logEvent(request,"Deleted","Service",service.id!!,"Deleted")
-            }
-            catch (e:Exception)
-            { println(e.message)}
-            return
-        }
-
-        throw UnauthorisedToModifyServices()
-    }
-*/
 }

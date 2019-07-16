@@ -40,7 +40,14 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         val insrc = manifest.assets[manifest.assetIdx].engine.resources.first().uri!!
         val vis =  true
 
-        outputSd = ServiceDescription(id,name,description,pages, mutableListOf(),logo,"",insrc,space,vis)
+
+
+
+
+
+
+
+        outputSd = ServiceDescription(id,name,description,pages, getTags(),logo,"",insrc,space,vis)
     }
     override fun getOutput(): Any {
         when (outputSd==null) {
@@ -65,5 +72,34 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         thePages.add(currentPage)
 
         return thePages
+    }
+
+    fun getTags() : MutableList<String> {
+        var tags = mutableListOf<String>()
+        /*"tags":[
+                "Security:Open",
+                "Technology:Rest/JSON",
+                "OpenAPISpec:Swagger",
+                "AgencyAcr:ATO",
+                "Status:Published",
+                "Category:Metadata",
+                "Definitions"
+                ]
+
+        "features": {
+			"registration_required": true,
+			"technology": "REST/JSON",
+			"space": "apigovau",
+			"status": "published"
+		},
+		"tags": [
+			"metadata",
+			"definitions"
+		],*/
+        tags.add(if (manifest.metadata.features.registration_required) "Security: Reg" else "Security:Open")
+        tags.add("Technology:${manifest.metadata.features.technology}")
+        tags.add("Status:${manifest.metadata.features.status}")
+        manifest.metadata.tags.forEach { tags.add(it) }
+        return tags
     }
 }
