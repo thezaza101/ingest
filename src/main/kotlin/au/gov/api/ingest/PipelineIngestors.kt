@@ -20,12 +20,19 @@ class ServiceDescriptionIngestor() : Ingestor() {
 
     override fun execute() {
 
-        val logURL = Config.get("BaseRepoURI")+"service/${serviceDescription.id}"
+        val logURL = Config.get("BaseRepoURI")+"service"
         val parser = Parser()
         var payload = parser.parse(StringBuilder(Klaxon().toJsonString(serviceDescription))) as JsonObject
-        var x = khttp.post(logURL,auth= BasicAuthorization("user", "cats"),json = payload)
+        var x = khttp.post(logURL,auth=GetAuth(),json = payload)
         output = x.text
         println("Status:"+x.statusCode)
+    }
+
+    fun GetAuth():BasicAuthorization {
+        val eventAuth = System.getenv("IngestAuthKey")
+        val eventAuthUser = eventAuth.split(":")[0]
+        val eventAuthPass = eventAuth.split(":")[1]
+        return BasicAuthorization(eventAuthUser, eventAuthPass)
     }
 }
 
