@@ -29,7 +29,7 @@ class Metadata {
 }
 
 class Features {
-    var registration_required: Boolean = false
+    var security: String? = null
     var technology: String? = null
     var status: String? = null
     var space: String? = null

@@ -3,7 +3,9 @@ package au.gov.api.ingest
 import java.net.URL
 
 class PipelineBuilder {
-
+    enum class AssetMechanism {
+        All,poll
+    }
     var Pipes:MutableList<Pipeline> = mutableListOf()
     var ManifestRef:Manifest = Manifest()
 
@@ -14,13 +16,14 @@ class PipelineBuilder {
         ManifestRef = manifest
     }
 
-    fun buildPipeline() {
+    fun buildPipeline(am:AssetMechanism = AssetMechanism.All) {
         var idxOfAsset = 0
         for (asset in ManifestRef.assets) {
             var pl = Pipeline(ManifestRef,idxOfAsset)
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
-                    "poll" -> pl.addToPipeline(PolledData(resource.uri!!))
+                    "poll" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
+                                        {pl.addToPipeline(PolledData(resource.uri!!))}}
                 }
             }
             for (eng in asset.engine.names) {

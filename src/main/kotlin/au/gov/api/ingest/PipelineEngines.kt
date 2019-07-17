@@ -96,10 +96,10 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
 			"metadata",
 			"definitions"
 		],*/
-        tags.add(if (manifest.metadata.features.registration_required) "Security: Reg" else "Security:Open")
-        tags.add("Technology:${manifest.metadata.features.technology}")
-        tags.add("Status:${manifest.metadata.features.status}")
-        manifest.metadata.tags.forEach { tags.add(it) }
+        tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
+        tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
+        tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }
 }

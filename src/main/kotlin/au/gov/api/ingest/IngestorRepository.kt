@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.sql.Connection
 import java.sql.SQLException
@@ -25,6 +26,15 @@ class IngestorRepository {
 
     constructor(theDataSource: DataSource) {
         dataSource = theDataSource
+    }
+
+    @Scheduled(fixedRate = 1800000)
+    fun runScheduledPollEvents() {
+        var manifests = findAll()
+        var pipelines:MutableList<PipelineBuilder> = mutableListOf()
+        manifests.forEach { pipelines.add(PipelineBuilder(it)) }
+        pipelines.forEach { it.buildPipeline(PipelineBuilder.AssetMechanism.poll) }
+        pipelines.forEach { it.executePipes() }
     }
 
     fun save(manifest: Manifest) {
