@@ -5,7 +5,7 @@
 		"description": "The Definitions Catalogue Rest API allows you to search and browse for data definitions used by the Australian Government",
 		"logo": "https://api.gov.au/img/catalogue_brand.png",
 		"features": {
-			"registration_required": true,
+			"security": "Open",
 			"technology": "REST/JSON",
 			"space": "apigovau",
 			"status": "published"
