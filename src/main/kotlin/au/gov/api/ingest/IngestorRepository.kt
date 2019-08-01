@@ -16,8 +16,6 @@ class RepositoryException() : RuntimeException()
 
 @Service
 class IngestorRepository {
-    @Value("\${spring.datasource.url}")
-    var dbUrl: String? = null
 
     @Autowired
     lateinit var dataSource: DataSource
@@ -116,19 +114,4 @@ class IngestorRepository {
     }
 
 
-    @Bean
-    @Throws(SQLException::class)
-    fun dataSource(): DataSource? {
-        if (dbUrl?.isEmpty() ?: true) {
-            return HikariDataSource()
-        } else {
-            val config = HikariConfig()
-            config.jdbcUrl = dbUrl
-            try {
-                return HikariDataSource(config)
-            } catch (e: Exception) {
-                return null
-            }
-        }
-    }
 }
