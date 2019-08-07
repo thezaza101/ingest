@@ -31,21 +31,18 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
     var outputSd:ServiceDescription? = null
 
     override fun execute() {
-        val id = manifest.metadata.id!!
-        val name = manifest.metadata.name!!
-        val description = manifest.metadata.description!!
+        val id = manifest.metadata.id ?: ""
+        val name = manifest.metadata.name ?: ""
+        val description = manifest.metadata.description ?: ""
         val pages = getSDPages()
-        val logo = manifest.metadata.logo!!
-        val space = manifest.metadata.features.space!!
-        val insrc = manifest.assets[manifest.assetIdx].engine.resources.first().uri!!
+        val logo = manifest.metadata.logo ?: ""
+        val space = manifest.metadata.features.space ?: ""
+        var insrc = ""
+        if(manifest.assets.size > manifest.assetIdx){
+            val asset = manifest.assets[manifest.assetIdx]
+            insrc = asset.engine.resources.first().uri ?: ""
+        }
         val vis =  true
-
-
-
-
-
-
-
 
         outputSd = ServiceDescription(id,name,description,pages, getTags(),logo,"",insrc,space,vis)
     }
@@ -96,9 +93,9 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
 			"metadata",
 			"definitions"
 		],*/
-        tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
-        tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
-        tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        if(manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
+        if(manifest.metadata.features.technology != null)tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
+        if(manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }
