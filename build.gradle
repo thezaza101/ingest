@@ -68,6 +68,8 @@ dependencies {
 
     compile 'org.yaml:snakeyaml:1.21'
 
+    compile 'org.ow2.easywsdl:easywsdl-wsdl:2.1'
+
 }
 
 group 'dir'
