@@ -4,7 +4,7 @@ import java.net.URL
 
 class Pipeline {
 
-    var ingestObjs:MutableList<Any> = mutableListOf()
+    var ingestObjs:MutableList<Pair<String,Any>> = mutableListOf()
     var manifest:Manifest? = Manifest()
     constructor(meta:Manifest, assetIdx:Int) {
         manifest = meta
@@ -20,18 +20,18 @@ class Pipeline {
     fun finaliseData() {
         pipeline.filter { it.type == PipeObject.PipeType.Data }
                 .forEach { it.execute()
-                    ingestObjs.add((it as Data).getString())}
+                    ingestObjs.add(Pair((it as Data).role,(it as Data).getString()))}
     }
     fun finaliseEngine() {
         pipeline.filter { it.type == PipeObject.PipeType.Engine }
                 .forEach { (it as Engine).setData(*ingestObjs.toTypedArray())
-                    ingestObjs.add(it.getOutput() )}
+                    ingestObjs.add(Pair(it.toString(),it.getOutput()) )}
     }
     fun finaliseIngest() {
         pipeline.filter { it.type == PipeObject.PipeType.Ingestor }
                 .forEach { (it as Ingestor).setData(ingestObjs.last())
                     it.execute()
-                    ingestObjs.add(it.output)}
+                    ingestObjs.add(Pair(it.toString(),it.output))}
     }
     fun finalise() {
         finaliseData()

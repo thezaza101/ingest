@@ -2,8 +2,9 @@ package au.gov.api.ingest
 
 import java.net.URL
 
-abstract class Data(source:String) : PipeObject() {
+abstract class Data(source:String,r:String) : PipeObject() {
     open var dataSource = source
+    open var role = r
     open var output:String? = null
 
     override val type: PipeType = PipeType.Data
@@ -17,7 +18,7 @@ abstract class Data(source:String) : PipeObject() {
     }
 }
 
-class PolledData(source:String) : Data(source) {
+class PolledData(source:String, role:String) : Data(source,role) {
     override fun execute() {
         output = URL(dataSource).readText()
     }

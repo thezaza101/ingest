@@ -18,9 +18,6 @@ import com.beust.klaxon.JsonObject
 
 import au.gov.api.config.*
 import com.fasterxml.jackson.databind.ObjectMapper
-//import au.gov.api.ingest.Service.GitHub
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 
 @RestController
 class APIController {

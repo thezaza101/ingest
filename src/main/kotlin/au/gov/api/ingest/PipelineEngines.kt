@@ -7,7 +7,7 @@ abstract class Engine : PipeObject() {
     override val type: PipeType = PipeType.Engine
 
     open fun setData(vararg input: Any) {
-        inputData = input.last() as String
+        inputData = (input.last() as Pair<String, Any>).second as String
     }
     open fun getOutput(): Any {
         when (output==null) {
@@ -98,5 +98,10 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         if(manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
+    }
+
+    override fun setData(vararg input: Any) {
+
+        inputData = (input.filter { (it as Pair<String,Any>).first.toLowerCase() == "markdown" }.last() as Pair<String,Any>).second as String
     }
 }

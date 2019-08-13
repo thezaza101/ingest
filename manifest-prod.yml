@@ -8,5 +8,7 @@ applications:
     config_environment: api.gov.au
     JAVA_OPTS: -Duser.timezone=Australia/Canberra
   path: build/libs/ingest-1.0.jar
+  services:
+  - api-gov-au-repository-pg-shared
   routes:
   - route: api.gov.au/ingest

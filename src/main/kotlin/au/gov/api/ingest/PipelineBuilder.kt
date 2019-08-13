@@ -23,7 +23,7 @@ class PipelineBuilder {
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
                     "poll" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
-                                        {pl.addToPipeline(PolledData(resource.uri!!))}}
+                                        {pl.addToPipeline(PolledData(resource.uri!!,resource.role!!))}}
                 }
             }
             for (eng in asset.engine.names) {
@@ -46,7 +46,7 @@ class PipelineBuilder {
     fun executePipes():MutableList<Any> {
         var outputs:MutableList<Any> = mutableListOf()
         Pipes.forEach { it.execute()
-            outputs.add(it.getLastPipelineOnject())}
+            outputs.add((it.getLastPipelineOnject() as Pair<String,Any>).second)}
 
         return MapPipeOutputs(outputs)
     }
@@ -63,6 +63,6 @@ class PipelineBuilder {
 
     companion object{
         @JvmStatic
-        fun getTextOfFlie(uri:String):String = URL(uri).readText()
+        fun getTextOfURL(uri:String):String = URL(uri).readText()
     }
 }

@@ -1,9 +1,11 @@
 package au.gov.api.ingest
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.ArrayList
 
 //Manifest
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Manifest {
     var metadata: Metadata = Metadata()
     internal var assetIdx = 0

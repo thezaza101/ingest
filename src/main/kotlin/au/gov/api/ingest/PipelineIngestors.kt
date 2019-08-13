@@ -15,7 +15,7 @@ abstract class Ingestor : PipeObject() {
 class ServiceDescriptionIngestor() : Ingestor() {
     var serviceDescription:ServiceDescription = ServiceDescription()
     override fun setData(input: Any) {
-        serviceDescription = input as ServiceDescription
+        serviceDescription = (input as Pair<String,Any>).second as ServiceDescription
     }
 
     override fun execute() {
