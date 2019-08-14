@@ -5,7 +5,9 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Bean
+import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.sql.Connection
@@ -34,7 +36,14 @@ class IngestorRepository {
         pipelines.forEach { it.buildPipeline(PipelineBuilder.AssetMechanism.poll) }
         pipelines.forEach { it.executePipes() }
     }
-
+    /*@EventListener(ApplicationReadyEvent::class)
+    private fun previewManifest() {
+        var example = PipelineBuilder(PipelineBuilder.getTextOfURL("file:///C:/Users/theza/Desktop/test.json"))
+        example.buildPipeline()
+        example.Pipes.first().finaliseData()
+        example.Pipes.first().finaliseEngine()
+        example = example
+    }*/
     fun save(manifest: Manifest) {
         var connection: Connection? = null
         try {
