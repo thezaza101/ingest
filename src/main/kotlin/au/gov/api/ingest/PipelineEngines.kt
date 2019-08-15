@@ -240,7 +240,7 @@ class SwaggerToMarkdownEngine():Engine() {
     }
 
     private fun getPagesFromSwager(swaggerJson:String):String {
-        var title = swaggerJson.substring(0,swaggerJson.indexOf("\r\n")).substring(2)
+        var title = swaggerJson.substring(0,swaggerJson.indexOf("\n")).substring(2)
         var input = swaggerJson.replace(Regex("\\<.*?>"),"")
         var pages = splitPages(input.substring(swaggerJson.indexOf(title)+title.length)).toMutableList()
         var output = ""

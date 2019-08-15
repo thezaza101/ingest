@@ -124,6 +124,7 @@ class APIController {
 
     private fun logEvent(request:HttpServletRequest, action:String, type:String, name:String, reason:String,content:String = "") {
         Thread(Runnable {
+            try{
             print("Logging Event...")
             // http://www.baeldung.com/get-user-in-spring-security
             val raw = request.getHeader("authorization")
@@ -136,7 +137,8 @@ class APIController {
             val eventAuthUser = eventAuth.split(":")[0]
             val eventAuthPass = eventAuth.split(":")[1]
             var x = khttp.post(logURL,auth=BasicAuthorization(eventAuthUser, eventAuthPass),json = eventPayload)
-            println("Status:"+x.statusCode)
+            println("Status:"+x.statusCode)}
+            catch (e:Exception){}
         }).start()
     }
 
