@@ -23,3 +23,9 @@ class PolledData(source:String, role:String) : Data(source,role) {
         output = URL(dataSource).readText()
     }
 }
+
+class PolledSetData(source:String, role:String) : Data(source,role) {
+    override fun execute() {
+        output = object {}.javaClass.getResource(dataSource).readText()
+    }
+}
