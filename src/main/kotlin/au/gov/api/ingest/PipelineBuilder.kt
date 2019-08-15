@@ -24,6 +24,8 @@ class PipelineBuilder {
                 when (resource.mechanism!!) {
                     "poll" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
                                         {pl.addToPipeline(PolledData(resource.uri!!,resource.role!!))}}
+                    "pollf" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
+                    {pl.addToPipeline(PolledSetData(resource.uri!!,resource.role!!))}}
                 }
             }
             for (eng in asset.engine.names) {
