@@ -1,5 +1,6 @@
 package au.gov.api.ingest
 
+import au.gov.api.ingest.preview.EngineImpl
 import io.github.swagger2markup.Swagger2MarkupConverter
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
 import org.apache.commons.configuration2.builder.fluent.Configurations
@@ -25,6 +26,8 @@ abstract class Engine : PipeObject() {
 
 }
 
+@EngineImpl("",
+        "Removes 'front matter' from markdown files")
 class StripFrontMatterEngine : Engine() {
     override fun execute() {
         var contentStart = inputData.indexOf("---",inputData.indexOf("---")+3)
@@ -32,6 +35,8 @@ class StripFrontMatterEngine : Engine() {
     }
 }
 
+@EngineImpl("markdown",
+        "Converts a markdown document to a Service design")
 class SingleMarkdownToServiceDesignEngine : Engine() {
     var outputSd:ServiceDescription? = null
 
@@ -110,6 +115,8 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
     }
 }
 
+@EngineImpl("mergemapping",
+        "Merges multiple markdown documents based on headings")
 class MergeMarkdownEngine():Engine() {
     enum class MergeType {
         add, insertAfter
@@ -224,6 +231,8 @@ class MergeMarkdownEngine():Engine() {
     }
 }
 
+@EngineImpl("swagger",
+        "Converts swagger documents to markdown")
 class SwaggerToMarkdownEngine():Engine() {
     override fun execute() {
 
