@@ -17,7 +17,11 @@ import com.beust.klaxon.Parser
 import com.beust.klaxon.JsonObject
 
 import au.gov.api.config.*
+import au.gov.api.ingest.preview.EngineImpl
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+import org.springframework.core.type.filter.AnnotationTypeFilter
+import kotlin.collections.HashMap
 
 @RestController
 class APIController {
@@ -62,6 +66,23 @@ class APIController {
             throw Unauthorised()
         }
     }
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/metadata")
+    fun getMetaData() : String {
+
+        var scanner = ClassPathScanningCandidateComponentProvider(false)
+        scanner.addIncludeFilter(AnnotationTypeFilter(EngineImpl::class.java))
+        var results = hashMapOf<String,String>()
+        scanner.findCandidateComponents("au.gov.api.ingest")
+                .forEach { results.put(it.beanClassName.split('.').last(),(Class.forName(it.beanClassName).annotations
+                        .filter { it is EngineImpl }.first() as EngineImpl).toString().split('.').last()) }
+
+
+        return ObjectMapper().writeValueAsString(results)
+    }
+
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)  // 200
