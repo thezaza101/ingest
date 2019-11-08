@@ -76,13 +76,24 @@ class APIController {
         scanner.addIncludeFilter(AnnotationTypeFilter(EngineImpl::class.java))
         var results = hashMapOf<String,String>()
         scanner.findCandidateComponents("au.gov.api.ingest")
-                .forEach { results.put(it.beanClassName.split('.').last(),(Class.forName(it.beanClassName).annotations
-                        .filter { it is EngineImpl }.first() as EngineImpl).toString().split('.').last()) }
+                .forEach { results.put(it.beanClassName.split('.').last().replace("Engine",""),
+                        annotationStringToJson(Class.forName(it.beanClassName).annotations.filter { it is EngineImpl }.first().toString())) }
 
 
-        return ObjectMapper().writeValueAsString(results)
+        return ObjectMapper().writeValueAsString(results).replace("\\","").replace("\"{","{").replace("}\"","}")
     }
 
+    fun annotationStringToJson(annotationString:String) : String {
+        var annotDetails = annotationString.split('.').last()
+        annotDetails = annotDetails.removeRange(0,annotDetails.indexOf('(')+1)
+        annotDetails = annotDetails.take(annotDetails.length-1)
+        var output = "{"
+        annotDetails.split(',').forEach {
+            val both = it.split('=')
+            output = "$output \"${both.first().trim()}\" : \"${both.last().trim()}\","
+        }
+        return "${output.take(output.length-1)} }"
+    }
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)  // 200
