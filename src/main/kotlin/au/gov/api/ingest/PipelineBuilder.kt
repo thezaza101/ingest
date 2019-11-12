@@ -34,6 +34,7 @@ class PipelineBuilder {
 
             when (asset.type){
                 "api_description" -> pl.addToPipeline(ServiceDescriptionIngestor())
+                "api_description_preview" -> pl.addToPipeline(ServiceDescriptionIngestorPreview())
             }
             Pipes.add(pl)
             idxOfAsset++
