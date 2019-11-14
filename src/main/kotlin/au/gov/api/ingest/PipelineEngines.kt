@@ -1,5 +1,6 @@
 package au.gov.api.ingest
 
+import au.gov.api.config.Config
 import au.gov.api.ingest.preview.EngineImpl
 import io.github.swagger2markup.Swagger2MarkupConverter
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
@@ -295,4 +296,25 @@ class SwaggerToMarkdownEngine() : Engine() {
     }
 
     private fun isH2(line: String) = line.startsWith("## ")
+}
+
+@EngineImpl("docx",
+        "markdown",
+        "Converts docx documents to markdown")
+class DocxToMarkdownEngine() : Engine() {
+
+    override fun execute() {
+        var converURI = Config.get("DocConverter")+"pandoc"
+
+        var configs = Configurations().properties("config.properties")
+        var swagger2MarkupConfig = Swagger2MarkupConfigBuilder(configs).build()
+        var converterBuilder = Swagger2MarkupConverter.from(inputData)
+        converterBuilder.withConfig(swagger2MarkupConfig)
+        var converter = converterBuilder.build()
+        //output = getPagesFromSwagger(converter.toString())
+    }
+
+    override fun setData(vararg input: Any) {
+        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "docx" }.last() as Pair<String, Any>).second as String
+    }
 }

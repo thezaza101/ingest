@@ -26,6 +26,14 @@ class PolledData(source:String, role:String) : Data(source,role) {
     }
 }
 
+@DataImpl("Any", "Can get data from any uploaded files")
+class UploadedData(source:String, role:String) : Data(source,role) {
+    override fun execute() {
+        //TO DO
+        //output = URL(dataSource).readText()
+    }
+}
+
 @DataImpl("Local", "Can get data from any local file")
 class PolledSetData(source:String, role:String) : Data(source,role) {
     override fun execute() {
