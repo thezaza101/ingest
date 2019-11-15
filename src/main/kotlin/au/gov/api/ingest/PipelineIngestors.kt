@@ -1,6 +1,7 @@
 package au.gov.api.ingest
 
 import au.gov.api.config.Config
+import au.gov.api.ingest.preview.IngestImpl
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
@@ -12,6 +13,7 @@ abstract class Ingestor : PipeObject() {
     abstract fun setData(input:Any)
 }
 
+@IngestImpl("api_description","Posts the service description to the apigovau repository")
 class ServiceDescriptionIngestor() : Ingestor() {
     var serviceDescription:ServiceDescription = ServiceDescription()
     override fun setData(input: Any) {
@@ -33,6 +35,17 @@ class ServiceDescriptionIngestor() : Ingestor() {
         val eventAuthUser = eventAuth.split(":")[0]
         val eventAuthPass = eventAuth.split(":")[1]
         return BasicAuthorization(eventAuthUser, eventAuthPass)
+    }
+}
+
+@IngestImpl("api_description","Returns the service description as json")
+class ServiceDescriptionIngestorPreview() : Ingestor() {
+    var serviceDescription:ServiceDescription = ServiceDescription()
+    override fun setData(input: Any) {
+        serviceDescription = (input as Pair<String,Any>).second as ServiceDescription
+    }
+    override fun execute() {
+        output = StringBuilder(Klaxon().toJsonString(serviceDescription)).toString()
     }
 }
 
