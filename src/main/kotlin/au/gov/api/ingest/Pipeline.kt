@@ -6,14 +6,19 @@ class Pipeline {
 
     var ingestObjs:MutableList<Pair<String,Any>> = mutableListOf()
     var manifest:Manifest? = Manifest()
-    constructor(meta:Manifest, assetIdx:Int) {
+    var repository:IngestorRepository? = IngestorRepository()
+
+    constructor(meta:Manifest, assetIdx:Int, repo: IngestorRepository? = null) {
         manifest = meta
-        manifest!!.assetIdx = assetIdx}
+        manifest!!.assetIdx = assetIdx
+        repository = repo
+    }
 
     var pipeline:MutableList<PipeObject> = mutableListOf()
 
     fun addToPipeline(input:PipeObject) {
         var element = input
+        element.repository = repository;
         element.manifest = manifest!!
         pipeline.add(element)
     }
@@ -57,6 +62,7 @@ abstract class PipeObject {
     abstract fun execute()
     abstract val type:PipeType
     var manifest:Manifest = Manifest()
+    var repository:IngestorRepository? = IngestorRepository()
 }
 
 

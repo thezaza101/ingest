@@ -1,5 +1,6 @@
 package au.gov.api.ingest
 
+import org.springframework.stereotype.Component
 import java.net.URL
 
 class PipelineBuilder {
@@ -16,14 +17,16 @@ class PipelineBuilder {
         ManifestRef = manifest
     }
 
-    fun buildPipeline(am:AssetMechanism = AssetMechanism.All) {
+    fun buildPipeline(am:AssetMechanism = AssetMechanism.All, repository: IngestorRepository?) {
         var idxOfAsset = 0
         for (asset in ManifestRef.assets) {
-            var pl = Pipeline(ManifestRef,idxOfAsset)
+            var pl = Pipeline(ManifestRef,idxOfAsset,repository)
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
                     "poll" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
                                         {pl.addToPipeline(PolledData(resource.uri!!,resource.role!!))}}
+                    "file" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
+                    {pl.addToPipeline(UploadedData(resource.uri!!,resource.role!!))}}
                     "pollf" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
                                         {pl.addToPipeline(PolledSetData(resource.uri!!,resource.role!!))}}
                 }

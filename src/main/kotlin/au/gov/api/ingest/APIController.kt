@@ -16,6 +16,8 @@ import org.springframework.core.env.Environment
 import org.springframework.core.type.filter.AnnotationTypeFilter
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.io.File
+import java.security.MessageDigest
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 import kotlin.collections.HashMap
@@ -65,58 +67,45 @@ class APIController {
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/upload")
+    fun uploadFile(request: HttpServletRequest,
+                    @RequestParam(required = false, defaultValue = "") id: String,
+                    @RequestParam fileName: String,
+                    @RequestParam MIMEType: String,
+                    @RequestBody x:ByteArray): String {
+        var md5= hashString("MD5",x.toString())
+        val key = getKeyFromRequest(request)
+        if (id!="" && repository.findFileByKey(key).any { it.id.equals(id) }) {
+            repository.deleteFile(id)
+            md5=id
+        }
+        var base64file = String(java.util.Base64.getEncoder().encode(x),Charsets.UTF_8)
+        repository.saveFile(md5,fileName,MIMEType,key,base64file)
+        return md5
+    }
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/upload")
+    fun deleteFile(request: HttpServletRequest, @RequestParam id: String) : Boolean{
+        val key = getKeyFromRequest(request)
+        var success = false
+        if (repository.findFileByKey(key).any { it.id.equals(id) }) {
+            repository.deleteFile(id)
+            success = true
+        }
+        return success
+    }
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/metadata")
     fun getMetaData(): String {
-        var results = hashMapOf<String, HashMap<String, String>>()
-        var data = hashMapOf<String, String>()
-        var engines = hashMapOf<String, String>()
-        var ingestors = hashMapOf<String, String>()
 
-
-        var scannerData = ClassPathScanningCandidateComponentProvider(false)
-        scannerData.addIncludeFilter(AnnotationTypeFilter(DataImpl::class.java))
-        scannerData.findCandidateComponents("au.gov.api.ingest")
-                .forEach {
-                    data.put(it.beanClassName.split('.').last().replace("Data", ""),
-                            annotationStringToJson(Class.forName(it.beanClassName).annotations.filter { it is DataImpl }.first().toString()))
-                }
-
-
-        var scannerEngines = ClassPathScanningCandidateComponentProvider(false)
-        scannerEngines.addIncludeFilter(AnnotationTypeFilter(EngineImpl::class.java))
-        scannerEngines.findCandidateComponents("au.gov.api.ingest")
-                .forEach {
-                    engines.put(it.beanClassName.split('.').last().replace("Engine", ""),
-                            annotationStringToJson(Class.forName(it.beanClassName).annotations.filter { it is EngineImpl }.first().toString()))
-                }
-
-        var scannerIngestors = ClassPathScanningCandidateComponentProvider(false)
-        scannerIngestors.addIncludeFilter(AnnotationTypeFilter(IngestImpl::class.java))
-        scannerIngestors.findCandidateComponents("au.gov.api.ingest")
-                .forEach {
-                    ingestors.put(it.beanClassName.split('.').last().replace("Ingestor", ""),
-                            annotationStringToJson(Class.forName(it.beanClassName).annotations.filter { it is IngestImpl }.first().toString()))
-                }
-
-
-        results.put("Data", data)
-        results.put("Engine", engines)
-        results.put("Ingestors", ingestors)
-
-        return ObjectMapper().writeValueAsString(results).replace("\\", "").replace("\"{", "{").replace("}\"", "}")
+        return File("meta.json").readText()
     }
 
-    fun annotationStringToJson(annotationString: String): String {
-        var annotDetails = annotationString.split('.').last()
-        annotDetails = annotDetails.removeRange(0, annotDetails.indexOf('(') + 1)
-        annotDetails = annotDetails.take(annotDetails.length - 1)
-        var output = "{"
-        annotDetails.split(',').forEach {
-            val both = it.split('=')
-            output = "$output \"${both.first().trim()}\" : \"${both.last().trim()}\","
-        }
-        return "${output.take(output.length - 1)} }"
-    }
+
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)  // 200
@@ -132,6 +121,14 @@ class APIController {
         throw Unauthorised()
     }
 
+
+    private fun hashString(type: String, input: String) =
+            MessageDigest
+                    .getInstance(type)
+                    .digest(input.toByteArray())
+                    .map { String.format("%02X", it) }
+                    .joinToString(separator = "")
+
     private fun isManifestUnique(mf: Manifest): Boolean {
         val existingManifests = repository.findAll()
         existingManifests
@@ -144,11 +141,22 @@ class APIController {
 
     private fun ExecuteManifest(mf: Manifest): MutableList<Any> {
         var pipe = PipelineBuilder(mf)
-        pipe.buildPipeline()
+        pipe.buildPipeline(PipelineBuilder.AssetMechanism.All,repository)
         var outputs = pipe.executePipes()
         return outputs
     }
 
+    private fun getKeyFromRequest(request: HttpServletRequest): String {
+        if (environment.getActiveProfiles().contains("prod")) {
+            val raw = request.getHeader("authorization")
+            if (raw == null) return "Error";
+            val apikey = String(Base64.getDecoder().decode(raw.removePrefix("Basic ")))
+
+            return apikey.split(":")[0]
+        } else {
+            return "DEVKEY"
+        }
+    }
     private fun isAuthorisedToSaveService(request: HttpServletRequest, space: String): Boolean {
         if (environment.getActiveProfiles().contains("prod")) {
             val AuthURI = Config.get("AuthURI")

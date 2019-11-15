@@ -5,6 +5,8 @@ import au.gov.api.ingest.preview.EngineImpl
 import io.github.swagger2markup.Swagger2MarkupConverter
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
 import org.apache.commons.configuration2.builder.fluent.Configurations
+import java.io.ByteArrayInputStream
+import java.util.*
 
 abstract class Engine : PipeObject() {
     var inputData = ""
@@ -304,14 +306,10 @@ class SwaggerToMarkdownEngine() : Engine() {
 class DocxToMarkdownEngine() : Engine() {
 
     override fun execute() {
-        var converURI = Config.get("DocConverter")+"pandoc"
-
-        var configs = Configurations().properties("config.properties")
-        var swagger2MarkupConfig = Swagger2MarkupConfigBuilder(configs).build()
-        var converterBuilder = Swagger2MarkupConverter.from(inputData)
-        converterBuilder.withConfig(swagger2MarkupConfig)
-        var converter = converterBuilder.build()
-        //output = getPagesFromSwagger(converter.toString())
+        val ConvertURI = Config.get("DocConverter")
+        val url = "${ConvertURI}pandoc?format=docx&toFormat=gfm&tryExtractImages=true"
+        val resp = khttp.post(url,data= ByteArrayInputStream(Base64.getDecoder().decode(inputData)),headers = mapOf("Content-Type" to "application/octet-stream"))
+        output = resp.text
     }
 
     override fun setData(vararg input: Any) {
