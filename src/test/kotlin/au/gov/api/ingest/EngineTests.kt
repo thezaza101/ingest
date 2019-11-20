@@ -8,12 +8,13 @@ class EngineTests {
     val example = object {}.javaClass.getResource("/ManifestExample1.json").readText()
     val manifest = PipelineBuilder(example)
     init {
-        manifest.buildPipeline()
+        manifest.buildPipeline(PipelineBuilder.AssetMechanism.All,null)
     }
 
     private fun executeData() {
         manifest.Pipes.first().finaliseData()
     }
+
     private fun executeEngine() {
         manifest.Pipes.first().finaliseEngine()
     }
@@ -86,8 +87,4 @@ class EngineTests {
         var sd = manifest.Pipes.first().ingestObjs.last().second as ServiceDescription
         Assert.assertEquals(manifest.ManifestRef.metadata.name,sd.name)
     }
-
-
-
-
 }

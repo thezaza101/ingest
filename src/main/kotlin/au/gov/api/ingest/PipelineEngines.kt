@@ -255,7 +255,6 @@ class MergeMarkdownEngine() : Engine() {
         "Converts swagger documents to markdown")
 class SwaggerToMarkdownEngine() : Engine() {
     override fun execute() {
-
         var configs = Configurations().properties("config.properties")
         var swagger2MarkupConfig = Swagger2MarkupConfigBuilder(configs).build()
         var converterBuilder = Swagger2MarkupConverter.from(inputData)
@@ -308,7 +307,7 @@ class DocxToMarkdownEngine() : Engine() {
     override fun execute() {
         val ConvertURI = Config.get("DocConverter")
         val url = "${ConvertURI}pandoc?format=docx&toFormat=gfm&tryExtractImages=true"
-        val resp = khttp.post(url,data= ByteArrayInputStream(Base64.getDecoder().decode(inputData)),headers = mapOf("Content-Type" to "application/octet-stream"))
+        val resp = khttp.post(url, data = ByteArrayInputStream(Base64.getDecoder().decode(inputData)), headers = mapOf("Content-Type" to "application/octet-stream"))
         output = resp.text
     }
 
