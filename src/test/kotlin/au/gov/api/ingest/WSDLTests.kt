@@ -15,6 +15,7 @@ class WSDLEngineTests{
     val sd:ServiceDescription
 
     init{
+        engine.inputIds = listOf("wsdl")
         engine.setData(Pair<String,String>("wsdl",example))
         sd = engine.getOutput() as ServiceDescription
     }
