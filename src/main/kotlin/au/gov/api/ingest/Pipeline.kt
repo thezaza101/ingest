@@ -25,12 +25,12 @@ class Pipeline {
     fun finaliseData() {
         pipeline.filter { it.type == PipeObject.PipeType.Data }
                 .forEach { it.execute()
-                    ingestObjs.add(Pair((it as Data).role,(it as Data).getString()))}
+                    ingestObjs.add(Pair((it as Data).id,(it as Data).getString()))}
     }
     fun finaliseEngine() {
         pipeline.filter { it.type == PipeObject.PipeType.Engine }
                 .forEach { (it as Engine).setData(*ingestObjs.toTypedArray())
-                    ingestObjs.add(Pair(it.toString(),it.getOutput()) )}
+                    ingestObjs.add(Pair(it.outputId,it.getOutput()) )}
     }
     fun finaliseIngest() {
         pipeline.filter { it.type == PipeObject.PipeType.Ingestor }

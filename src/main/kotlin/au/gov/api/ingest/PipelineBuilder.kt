@@ -33,6 +33,7 @@ class PipelineBuilder {
             }
             for (eng in asset.engine.steps) {
                 pl.addToPipeline(getClassFromString("au.gov.api.ingest.${eng.name}Engine")!!.getConstructor().newInstance() as PipeObject)
+                (pl.pipeline.last() as Engine).setAllConfig(eng.input!!,eng.output!!,eng.config)
             }
 
             when (asset.type){

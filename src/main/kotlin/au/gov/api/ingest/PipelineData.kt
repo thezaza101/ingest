@@ -11,7 +11,7 @@ import java.util.*
 
 abstract class Data(source:String,r:String) : PipeObject() {
     open var dataSource = source
-    open var role = r
+    open var id = r
     open var output: String? = null
 
     override val type: PipeType = PipeType.Data

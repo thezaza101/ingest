@@ -9,13 +9,36 @@ import java.io.ByteArrayInputStream
 import java.util.*
 
 abstract class Engine : PipeObject() {
+    var inputIds:List<String>? = null
     var inputData = ""
+    var outputId = ""
+    var config:HashMap<String,String>? = null
     open var output: String? = null
 
     override val type: PipeType = PipeType.Engine
 
+    fun setInputNames(names:List<String>) {
+        inputIds = names
+    }
+
+    fun setOutputName(name:String) {
+        outputId = name
+    }
+
+    fun setConfigration(conf:HashMap<String,String>?) {
+        config = conf
+    }
+
+    fun setAllConfig(inNames:List<String>, outName:String, engConf:HashMap<String,String>?) {
+        setInputNames(inNames)
+        setOutputName(outName)
+        setConfigration(engConf)
+    }
+
     open fun setData(vararg input: Any) {
-        inputData = (input.last() as Pair<String, Any>).second as String
+        //inputData = (input.last() as Pair<String, Any>).second as String
+        inputData = (input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
+                .first() as Pair<String, Any>).second.toString()
     }
 
     open fun getOutput(): Any {
@@ -119,15 +142,11 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }
-
-    override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase().contains("markdown") }.last() as Pair<String, Any>).second as String
-    }
 }
 
-@EngineImpl("mergemapping",
+@EngineImpl("markdown",
         "markdown",
-        "Merges multiple markdown documents based on headings")
+        "Merges 2 markdown documents based on headings")
 class MergeMarkdownEngine() : Engine() {
     enum class MergeType {
         add, insertAfter
@@ -169,10 +188,11 @@ class MergeMarkdownEngine() : Engine() {
     }
 
     override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "mergemapping" }.last() as Pair<String, Any>).second as String
+        inputData = (input.filter { config!!["map"].equals((it as Pair<String, Any>).first) }
+                .first() as Pair<String, Any>).second.toString()
         inputData = getMappingString(inputData)
         mergeActions = parseMappingAction(inputData)
-        var lastTwo = input.takeLast(2)
+        var lastTwo = input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
         mainMarkdown = (lastTwo.first() as Pair<String, Any>).second as String
         secondMarkdown = (lastTwo.last() as Pair<String, Any>).second as String
     }
@@ -261,10 +281,6 @@ class SwaggerToMarkdownEngine() : Engine() {
         converterBuilder.withConfig(swagger2MarkupConfig)
         var converter = converterBuilder.build()
         output = getPagesFromSwagger(converter.toString())
-    }
-
-    override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "swagger" }.last() as Pair<String, Any>).second as String
     }
 
     private fun getPagesFromSwagger(swaggerJson: String): String {
