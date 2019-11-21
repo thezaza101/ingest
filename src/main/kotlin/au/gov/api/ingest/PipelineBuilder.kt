@@ -24,15 +24,15 @@ class PipelineBuilder {
             for (resource in asset.engine.resources) {
                 when (resource.mechanism!!) {
                     "poll" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
-                                        {pl.addToPipeline(PolledData(resource.uri!!,resource.role!!))}}
+                                        {pl.addToPipeline(PolledData(resource.uri!!,resource.id!!))}}
                     "file" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
-                    {pl.addToPipeline(UploadedData(resource.uri!!,resource.role!!))}}
+                    {pl.addToPipeline(UploadedData(resource.uri!!,resource.id!!))}}
                     "pollf" -> { if(am==AssetMechanism.All || am==AssetMechanism.poll)
-                                        {pl.addToPipeline(PolledSetData(resource.uri!!,resource.role!!))}}
+                                        {pl.addToPipeline(PolledSetData(resource.uri!!,resource.id!!))}}
                 }
             }
-            for (eng in asset.engine.names) {
-                pl.addToPipeline(getClassFromString("au.gov.api.ingest.${eng}Engine")!!.getConstructor().newInstance() as PipeObject)
+            for (eng in asset.engine.steps) {
+                pl.addToPipeline(getClassFromString("au.gov.api.ingest.${eng.name}Engine")!!.getConstructor().newInstance() as PipeObject)
             }
 
             when (asset.type){
