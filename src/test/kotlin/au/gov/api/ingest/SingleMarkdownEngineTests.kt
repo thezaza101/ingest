@@ -30,7 +30,8 @@ some content about page 2
     val sd:ServiceDescription
 
     init{
-        mdfm.setData(Pair<String,String>("markdown",example))
+        mdfm.inputIds = listOf("md1")
+        mdfm.setData(Pair<String,String>("md1",example))
         sd = mdfm.getOutput() as ServiceDescription
     }
 

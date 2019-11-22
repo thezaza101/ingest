@@ -24,10 +24,21 @@
 			"type":"api_description",
 			"misc":[],
 			"engine":{
-				"names":["StripFrontMatter","SingleMarkdownToServiceDesign"],
+				"steps":[
+					{
+						"name": "StripFrontMatter",
+						"input": ["md1"],
+						"output": "md2",
+						"config": {}
+					},{
+						"name": "SingleMarkdownToServiceDesign",
+						"input": ["md2"],
+						"output": "api_description",
+						"config": {}
+					}],
 				"resources":[
 					{
-						"role":"markdown",
+						"id":"md1",
 						"uri":"https://raw.githubusercontent.com/thezaza101/api-gov-au-definitions/master/api-documentation.md",
 						"mechanism":"poll"
 					}

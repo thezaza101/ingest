@@ -45,12 +45,19 @@ class Assets {
 }
 
 class EngineDec {
-    var names = ArrayList<String>()
+    var steps = ArrayList<Step>()
     var resources = ArrayList<Resources>()
 }
 
+data class Step (
+
+        val name : String? = null,
+        val input : List<String>? = null,
+        val output : String? = null,
+        val config : HashMap<String,String>? = null
+)
 class Resources {
-    var role: String? = null
+    var id: String? = null
     var uri: String? = null
     var mechanism: String? = null
 }

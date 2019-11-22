@@ -5,17 +5,45 @@ import au.gov.api.ingest.preview.EngineImpl
 import io.github.swagger2markup.Swagger2MarkupConverter
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
 import org.apache.commons.configuration2.builder.fluent.Configurations
+import org.ow2.easywsdl.wsdl.WSDLFactory
+import org.ow2.easywsdl.wsdl.api.Description
+import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
+import java.io.StringReader
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 
 abstract class Engine : PipeObject() {
+    var inputIds:List<String>? = null
     var inputData = ""
+    var outputId = ""
+    var config:HashMap<String,String>? = null
     open var output: String? = null
 
     override val type: PipeType = PipeType.Engine
 
+    fun setInputNames(names:List<String>) {
+        inputIds = names
+    }
+
+    fun setOutputName(name:String) {
+        outputId = name
+    }
+
+    fun setConfigration(conf:HashMap<String,String>?) {
+        config = conf
+    }
+
+    fun setAllConfig(inNames:List<String>, outName:String, engConf:HashMap<String,String>?) {
+        setInputNames(inNames)
+        setOutputName(outName)
+        setConfigration(engConf)
+    }
+
     open fun setData(vararg input: Any) {
-        inputData = (input.last() as Pair<String, Any>).second as String
+        //inputData = (input.last() as Pair<String, Any>).second as String
+        inputData = (input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
+                .first() as Pair<String, Any>).second.toString()
     }
 
     open fun getOutput(): Any {
@@ -119,15 +147,11 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }
-
-    override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase().contains("markdown") }.last() as Pair<String, Any>).second as String
-    }
 }
 
-@EngineImpl("mergemapping",
+@EngineImpl("markdown",
         "markdown",
-        "Merges multiple markdown documents based on headings")
+        "Merges 2 markdown documents based on headings")
 class MergeMarkdownEngine() : Engine() {
     enum class MergeType {
         add, insertAfter
@@ -169,10 +193,11 @@ class MergeMarkdownEngine() : Engine() {
     }
 
     override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "mergemapping" }.last() as Pair<String, Any>).second as String
+        inputData = (input.filter { config!!["map"].equals((it as Pair<String, Any>).first) }
+                .first() as Pair<String, Any>).second.toString()
         inputData = getMappingString(inputData)
         mergeActions = parseMappingAction(inputData)
-        var lastTwo = input.takeLast(2)
+        var lastTwo = input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
         mainMarkdown = (lastTwo.first() as Pair<String, Any>).second as String
         secondMarkdown = (lastTwo.last() as Pair<String, Any>).second as String
     }
@@ -255,17 +280,12 @@ class MergeMarkdownEngine() : Engine() {
         "Converts swagger documents to markdown")
 class SwaggerToMarkdownEngine() : Engine() {
     override fun execute() {
-
         var configs = Configurations().properties("config.properties")
         var swagger2MarkupConfig = Swagger2MarkupConfigBuilder(configs).build()
         var converterBuilder = Swagger2MarkupConverter.from(inputData)
         converterBuilder.withConfig(swagger2MarkupConfig)
         var converter = converterBuilder.build()
         output = getPagesFromSwagger(converter.toString())
-    }
-
-    override fun setData(vararg input: Any) {
-        inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "swagger" }.last() as Pair<String, Any>).second as String
     }
 
     private fun getPagesFromSwagger(swaggerJson: String): String {
@@ -308,11 +328,89 @@ class DocxToMarkdownEngine() : Engine() {
     override fun execute() {
         val ConvertURI = Config.get("DocConverter")
         val url = "${ConvertURI}pandoc?format=docx&toFormat=gfm&tryExtractImages=true"
-        val resp = khttp.post(url,data= ByteArrayInputStream(Base64.getDecoder().decode(inputData)),headers = mapOf("Content-Type" to "application/octet-stream"))
+        val resp = khttp.post(url, data = ByteArrayInputStream(Base64.getDecoder().decode(inputData)), headers = mapOf("Content-Type" to "application/octet-stream"))
         output = resp.text
     }
 
     override fun setData(vararg input: Any) {
         inputData = (input.filter { (it as Pair<String, Any>).first.toLowerCase() == "docx" }.last() as Pair<String, Any>).second as String
+    }
+}
+
+class WSDLEngine: Engine() {
+    var outputSd:ServiceDescription? = null
+    val reader= WSDLFactory.newInstance().newWSDLReader()
+
+
+    private fun getWSDL(): Description {
+
+        val dbFactory = DocumentBuilderFactory.newInstance()
+        val dBuilder = dbFactory.newDocumentBuilder()
+        val xmlInput = InputSource(StringReader(inputData))
+        val doc = dBuilder.parse(xmlInput)
+        val desc = reader.read(doc)
+
+        return desc
+    }
+
+
+    override fun execute() {
+
+
+        val id = manifest.metadata.id ?: ""
+        val name = manifest.metadata.name ?: ""
+        val description = manifest.metadata.description ?: ""
+        val pages = getSDPages()
+        val logo = manifest.metadata.logo ?: ""
+        val space = manifest.metadata.features.space ?: ""
+        var insrc = ""
+        if(manifest.assets.size > manifest.assetIdx){
+            val asset = manifest.assets[manifest.assetIdx]
+            insrc = asset.engine.resources.first().uri ?: ""
+        }
+        val vis =  true
+
+        outputSd = ServiceDescription(id,name,description,pages, getTags(),logo,"",insrc,space,vis)
+    }
+    override fun getOutput(): Any {
+        when (outputSd==null) {
+            true ->{execute()
+                return outputSd!!}
+            false -> return outputSd!!
+        }
+    }
+
+    fun getSDPages() : List<String> {
+        var content = inputData
+        val thePages = mutableListOf<String>()
+
+        val desc = getWSDL()
+
+        for(service in desc.getServices()){
+            var svcString = "# ${service.getQName().getLocalPart()}\n\n"
+            for(endpoint in service.getEndpoints()){
+                svcString += "## ${endpoint.getName()}\n\n"
+                for(operation in endpoint.getBinding().getBindingOperations()){
+
+                    svcString += "### ${operation.getQName().getLocalPart()}\n\n"
+                    svcString += "### ${operation.getSoapAction()}\n\n"
+                    svcString += "### ${operation.getInput().getName()}\n\n"
+                    svcString += "### ${operation.getOutput().getName()}\n\n"
+
+                }
+            }
+            thePages.add(svcString)
+        }
+
+        return thePages
+    }
+
+    fun getTags() : MutableList<String> {
+        var tags = mutableListOf<String>()
+        if(manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
+        if(manifest.metadata.features.technology != null)tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
+        if(manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
+        return tags
     }
 }
