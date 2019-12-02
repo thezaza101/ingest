@@ -2,7 +2,7 @@ package au.gov.api.ingest
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.ArrayList
+import java.util.*
 
 //Manifest
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -11,9 +11,9 @@ class Manifest {
     internal var assetIdx = 0
     var assets = ArrayList<Assets>()
 
-    companion object{
+    companion object {
         @JvmStatic
-        fun readMnifest(manifestString:String) : Manifest {
+        fun readMnifest(manifestString: String): Manifest {
             return ObjectMapper().readValue(manifestString, Manifest::class.java)
         }
     }
@@ -26,7 +26,7 @@ class Metadata {
     var logo: String? = null
     var features: Features = Features()
     var tags = ArrayList<String>()
-    var misc = ArrayList<Pair<String,String>>()
+    var misc = ArrayList<Pair<String, String>>()
     var topics = ArrayList<String>()
 }
 
@@ -40,7 +40,7 @@ class Features {
 
 class Assets {
     var type: String? = null
-    var misc = ArrayList<Pair<String,String>>()
+    var misc = ArrayList<Pair<String, String>>()
     var engine: EngineDec = EngineDec()
 }
 
@@ -49,13 +49,14 @@ class EngineDec {
     var resources = ArrayList<Resources>()
 }
 
-data class Step (
+data class Step(
 
-        val name : String? = null,
-        val input : List<String>? = null,
-        val output : String? = null,
-        val config : HashMap<String,String>? = null
+        val name: String? = null,
+        val input: List<String>? = null,
+        val output: String? = null,
+        val config: HashMap<String, String>? = null
 )
+
 class Resources {
     var id: String? = null
     var uri: String? = null

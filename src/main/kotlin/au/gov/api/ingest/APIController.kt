@@ -181,24 +181,24 @@ class APIController {
     }
 
     private fun isKeyValid(request: HttpServletRequest): Boolean {
-       // if (environment.getActiveProfiles().contains("prod")) {
-            val AuthURI = Config.get("AuthURI")
+        // if (environment.getActiveProfiles().contains("prod")) {
+        val AuthURI = Config.get("AuthURI")
 
-            // http://www.baeldung.com/get-user-in-spring-security
-            val raw = request.getHeader("authorization")
-            if (raw == null) return false;
-            val apikey = String(Base64.getDecoder().decode(raw.removePrefix("Basic ")))
+        // http://www.baeldung.com/get-user-in-spring-security
+        val raw = request.getHeader("authorization")
+        if (raw == null) return false;
+        val apikey = String(Base64.getDecoder().decode(raw.removePrefix("Basic ")))
 
-            val user = apikey.split(":")[0]
-            val pass = apikey.split(":")[1]
+        val user = apikey.split(":")[0]
+        val pass = apikey.split(":")[1]
 
 
-            val authorisationRequest = get(AuthURI + "api/checkKey",
-                    auth = BasicAuthorization(user, pass)
-            )
+        val authorisationRequest = get(AuthURI + "api/checkKey",
+                auth = BasicAuthorization(user, pass)
+        )
 
-            if (authorisationRequest.statusCode != 200) return false
-            return authorisationRequest.text == "true"
+        if (authorisationRequest.statusCode != 200) return false
+        return authorisationRequest.text == "true"
         //}
         //return true
     }

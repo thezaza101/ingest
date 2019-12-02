@@ -14,27 +14,27 @@ import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
 abstract class Engine : PipeObject() {
-    var inputIds:List<String>? = null
+    var inputIds: List<String>? = null
     var inputData = ""
     var outputId = ""
-    var config:HashMap<String,String>? = null
+    var config: HashMap<String, String>? = null
     open var output: String? = null
 
     override val type: PipeType = PipeType.Engine
 
-    fun setInputNames(names:List<String>) {
+    fun setInputNames(names: List<String>) {
         inputIds = names
     }
 
-    fun setOutputName(name:String) {
+    fun setOutputName(name: String) {
         outputId = name
     }
 
-    fun setConfigration(conf:HashMap<String,String>?) {
+    fun setConfigration(conf: HashMap<String, String>?) {
         config = conf
     }
 
-    fun setAllConfig(inNames:List<String>, outName:String, engConf:HashMap<String,String>?) {
+    fun setAllConfig(inNames: List<String>, outName: String, engConf: HashMap<String, String>?) {
         setInputNames(inNames)
         setOutputName(outName)
         setConfigration(engConf)
@@ -337,9 +337,12 @@ class DocxToMarkdownEngine() : Engine() {
     }
 }
 
-class WSDLEngine: Engine() {
-    var outputSd:ServiceDescription? = null
-    val reader= WSDLFactory.newInstance().newWSDLReader()
+@EngineImpl("wsdl",
+        "markdown",
+        "Converts wsdl specifications to markdown")
+class WSDLEngine : Engine() {
+    var outputSd: ServiceDescription? = null
+    val reader = WSDLFactory.newInstance().newWSDLReader()
 
 
     private fun getWSDL(): Description {
@@ -364,33 +367,36 @@ class WSDLEngine: Engine() {
         val logo = manifest.metadata.logo ?: ""
         val space = manifest.metadata.features.space ?: ""
         var insrc = ""
-        if(manifest.assets.size > manifest.assetIdx){
+        if (manifest.assets.size > manifest.assetIdx) {
             val asset = manifest.assets[manifest.assetIdx]
             insrc = asset.engine.resources.first().uri ?: ""
         }
-        val vis =  true
+        val vis = true
 
-        outputSd = ServiceDescription(id,name,description,pages, getTags(),logo,"",insrc,space,vis)
+        outputSd = ServiceDescription(id, name, description, pages, getTags(), logo, "", insrc, space, vis)
     }
+
     override fun getOutput(): Any {
-        when (outputSd==null) {
-            true ->{execute()
-                return outputSd!!}
+        when (outputSd == null) {
+            true -> {
+                execute()
+                return outputSd!!
+            }
             false -> return outputSd!!
         }
     }
 
-    fun getSDPages() : List<String> {
+    fun getSDPages(): List<String> {
         var content = inputData
         val thePages = mutableListOf<String>()
 
         val desc = getWSDL()
 
-        for(service in desc.getServices()){
+        for (service in desc.getServices()) {
             var svcString = "# ${service.getQName().getLocalPart()}\n\n"
-            for(endpoint in service.getEndpoints()){
+            for (endpoint in service.getEndpoints()) {
                 svcString += "## ${endpoint.getName()}\n\n"
-                for(operation in endpoint.getBinding().getBindingOperations()){
+                for (operation in endpoint.getBinding().getBindingOperations()) {
 
                     svcString += "### ${operation.getQName().getLocalPart()}\n\n"
                     svcString += "### ${operation.getSoapAction()}\n\n"
@@ -405,12 +411,25 @@ class WSDLEngine: Engine() {
         return thePages
     }
 
-    fun getTags() : MutableList<String> {
+    fun getTags(): MutableList<String> {
         var tags = mutableListOf<String>()
-        if(manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
-        if(manifest.metadata.features.technology != null)tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
-        if(manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        if (manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
+        if (manifest.metadata.features.technology != null) tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
+        if (manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
+    }
+}
+
+@EngineImpl("markdown",
+        "markdown",
+        "Modifies the input based on configuration")
+class ModifyText() : Engine() {
+    override fun execute() {
+        //TODO
+        val ConvertURI = Config.get("DocConverter")
+        val url = "${ConvertURI}pandoc?format=docx&toFormat=gfm&tryExtractImages=true"
+        val resp = khttp.post(url, data = ByteArrayInputStream(Base64.getDecoder().decode(inputData)), headers = mapOf("Content-Type" to "application/octet-stream"))
+        output = resp.text
     }
 }

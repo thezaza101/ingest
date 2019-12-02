@@ -9,28 +9,28 @@ import khttp.structures.authorization.BasicAuthorization
 
 abstract class Ingestor : PipeObject() {
     override val type: PipeType = PipeType.Ingestor
-    var output : String = ""
-    abstract fun setData(input:Any)
+    var output: String = ""
+    abstract fun setData(input: Any)
 }
 
-@IngestImpl("api_description","Posts the service description to the apigovau repository")
+@IngestImpl("api_description", "Posts the service description to the apigovau repository")
 class ServiceDescriptionIngestor() : Ingestor() {
-    var serviceDescription:ServiceDescription = ServiceDescription()
+    var serviceDescription: ServiceDescription = ServiceDescription()
     override fun setData(input: Any) {
-        serviceDescription = (input as Pair<String,Any>).second as ServiceDescription
+        serviceDescription = (input as Pair<String, Any>).second as ServiceDescription
     }
 
     override fun execute() {
 
-        val logURL = Config.get("BaseRepoURI")+"service"
+        val logURL = Config.get("BaseRepoURI") + "service"
         val parser = Parser()
         var payload = parser.parse(StringBuilder(Klaxon().toJsonString(serviceDescription))) as JsonObject
-        var x = khttp.post(logURL,auth=GetAuth(),json = payload)
+        var x = khttp.post(logURL, auth = GetAuth(), json = payload)
         output = x.text
-        println("Status:"+x.statusCode)
+        println("Status:" + x.statusCode)
     }
 
-    fun GetAuth():BasicAuthorization {
+    fun GetAuth(): BasicAuthorization {
         val eventAuth = System.getenv("IngestAuthKey")
         val eventAuthUser = eventAuth.split(":")[0]
         val eventAuthPass = eventAuth.split(":")[1]
@@ -38,17 +38,30 @@ class ServiceDescriptionIngestor() : Ingestor() {
     }
 }
 
-@IngestImpl("api_description","Returns the service description as json")
+@IngestImpl("api_description", "Returns the service description as json")
 class ServiceDescriptionIngestorPreview() : Ingestor() {
-    var serviceDescription:ServiceDescription = ServiceDescription()
+    var serviceDescription: ServiceDescription = ServiceDescription()
     override fun setData(input: Any) {
-        serviceDescription = (input as Pair<String,Any>).second as ServiceDescription
+        serviceDescription = (input as Pair<String, Any>).second as ServiceDescription
     }
+
     override fun execute() {
         output = StringBuilder(Klaxon().toJsonString(serviceDescription)).toString()
     }
 }
 
-data class ServiceDescription(val id: String = "",val name: String = "", val description: String = "", val pages: List<String> = listOf(""),
+@IngestImpl("markdown", "Returns the markdown text")
+class GetMarkdown() : Ingestor() {
+    var markdownRaw = ""
+    override fun setData(input: Any) {
+        markdownRaw = (input as Pair<String, Any>).second as String
+    }
+
+    override fun execute() {
+        output = markdownRaw
+    }
+}
+
+data class ServiceDescription(val id: String = "", val name: String = "", val description: String = "", val pages: List<String> = listOf(""),
                               var tags: MutableList<String> = mutableListOf(), var logo: String = "", var agency: String = "",
                               var ingestSrc: String = "", var space: String = "", var visibility: Boolean = false)
