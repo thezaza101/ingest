@@ -2,13 +2,13 @@ package au.gov.api.ingest
 
 import org.junit.Assert
 import org.junit.Test
-import java.lang.Exception
 
 class EngineTests {
     val example = object {}.javaClass.getResource("/ManifestExample1.json").readText()
     val manifest = PipelineBuilder(example)
+
     init {
-        manifest.buildPipeline(PipelineBuilder.AssetMechanism.All,null)
+        manifest.buildPipeline(PipelineBuilder.AssetMechanism.All, null)
     }
 
     private fun executeData() {
@@ -21,13 +21,13 @@ class EngineTests {
 
     @Test
     fun test_has_correct_number_of_pipe_objects1() {
-        Assert.assertEquals(7,manifest.Pipes.first().pipeline.count())
+        Assert.assertEquals(7, manifest.Pipes.first().pipeline.count())
     }
 
     @Test
     fun test_can_poll_data() {
         executeData()
-        Assert.assertEquals(2,manifest.Pipes.first().ingestObjs.count())
+        Assert.assertEquals(2, manifest.Pipes.first().ingestObjs.count())
     }
 
     @Test
@@ -85,6 +85,6 @@ class EngineTests {
         executeEngine()
         Assert.assertTrue(manifest.Pipes.first().ingestObjs.last().second is ServiceDescription)
         var sd = manifest.Pipes.first().ingestObjs.last().second as ServiceDescription
-        Assert.assertEquals(manifest.ManifestRef.metadata.name,sd.name)
+        Assert.assertEquals(manifest.ManifestRef.metadata.name, sd.name)
     }
 }

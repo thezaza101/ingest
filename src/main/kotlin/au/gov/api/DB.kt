@@ -1,19 +1,18 @@
 package au.gov.api.db
-import org.springframework.beans.factory.annotation.Autowired
+
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
-import java.sql.Connection
 import java.sql.SQLException
 import javax.sql.DataSource
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 
 @Component
-class DB{
+class DB {
 
     @Value("\${spring.datasource.url}")
-    var dbUrl: String? = "jdbc:postgresql://localhost:5432/postgres" 
+    var dbUrl: String? = "jdbc:postgresql://localhost:5432/postgres"
 
     @Bean
     @Throws(SQLException::class)

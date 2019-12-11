@@ -13,12 +13,11 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.io.File
 import java.sql.Connection
-import java.sql.Timestamp
 import javax.sql.DataSource
 
 class RepositoryException() : RuntimeException()
 
-data class FileData(val id: String, val timestamp: String, val fileName: String, val MIMEType: String, val content:String="" )
+data class FileData(val id: String, val timestamp: String, val fileName: String, val MIMEType: String, val content: String = "")
 
 @Service
 class IngestorRepository {
@@ -37,7 +36,7 @@ class IngestorRepository {
         var manifests = findAll()
         var pipelines: MutableList<PipelineBuilder> = mutableListOf()
         manifests.forEach { pipelines.add(PipelineBuilder(it)) }
-        pipelines.forEach { it.buildPipeline(PipelineBuilder.AssetMechanism.poll,this) }
+        pipelines.forEach { it.buildPipeline(PipelineBuilder.AssetMechanism.poll, this) }
         pipelines.forEach { it.executePipes() }
     }
 
@@ -176,7 +175,6 @@ class IngestorRepository {
             if (connection != null) connection.close()
         }
     }
-
 
 
     fun deleteFile(id: String) {
