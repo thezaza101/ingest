@@ -8,6 +8,7 @@ import com.beust.klaxon.Parser
 import com.fasterxml.jackson.databind.ObjectMapper
 import khttp.structures.authorization.BasicAuthorization
 import java.security.KeyException
+import java.lang.Exception
 
 abstract class Ingestor : PipeObject() {
     override val type: PipeType = PipeType.Ingestor
@@ -48,7 +49,6 @@ class ServiceDescriptionIngestor() : Ingestor() {
             } else {
                 println("Updated id for ${x.text}")
             }
-
         }
     }
 

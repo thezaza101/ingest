@@ -46,7 +46,7 @@ Basic details about each endpoint have been outlined below, for full details, in
 
 The quick search endpoint enables a user to search for a list of Trade Mark Numbers that match the given critera. Users can search by type, status, and a given query. The request also supports limiting the search to only Trade Marks that have been updated since a given date. 
 
-Request Path: /quick/search
+Request Path: /search/quick
 Method: POST
 Request Payload Example:
 ```json

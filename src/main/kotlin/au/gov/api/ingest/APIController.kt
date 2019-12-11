@@ -191,13 +191,13 @@ class APIController {
 
             // http://www.baeldung.com/get-user-in-spring-security
             val raw = request.getHeader("authorization")
-            if (raw == null) return false;
+                if (raw == null) return false;
             val apikey = String(Base64.getDecoder().decode(raw.removePrefix("Basic ")))
 
             val user = apikey.split(":")[0]
             val pass = apikey.split(":")[1]
 
-
+            println("Attempting to validate key...")
             val authorisationRequest = get(AuthURI + "api/checkKey",
                     auth = BasicAuthorization(user, pass)
             )
