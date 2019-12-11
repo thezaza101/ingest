@@ -36,10 +36,15 @@ class APIController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/manifest")
     fun setManifest(request: HttpServletRequest, @RequestBody mf: Manifest,
-                    @RequestParam(required = false, defaultValue = "false") preview: Boolean): String {
+                    @RequestParam(required = false, defaultValue = "false") preview: Boolean,
+                    @RequestParam(required = false, defaultValue = "false") update: Boolean): String {
         if (isAuthorisedToSaveService(request, mf.metadata.features.space!!)) {
             if (preview) {
                 mf.assets.forEach { it.type = "${it.type}_preview" }
+            }
+            if (update) {
+                repository.save(mf)
+                return "Manifest updated"
             }
             if (mf.metadata.id.isNullOrBlank() && !isManifestUnique(mf)) return "This resource already exists"
 
@@ -47,7 +52,7 @@ class APIController {
             if (mf.metadata.id.isNullOrBlank()) {
                 mf.metadata.id = pipeOutputs.first().toString()
             }
-            repository.save(mf)
+
             logEvent(request, "Posted", "Manifest", mf.metadata.name!!, "Posted", ObjectMapper().writeValueAsString(mf))
 
             return ObjectMapper().writeValueAsString(pipeOutputs)
@@ -220,8 +225,9 @@ class APIController {
                 val eventAuthUser = eventAuth.split(":")[0]
                 val eventAuthPass = eventAuth.split(":")[1]
                 var x = khttp.post(logURL, auth = BasicAuthorization(eventAuthUser, eventAuthPass), json = eventPayload)
-                println("Status:" + x.statusCode)
+                println("Logged event:" + x.statusCode)
             } catch (e: Exception) {
+                println("Failed to log event: ${e}")
             }
         }).start()
     }
