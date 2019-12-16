@@ -104,7 +104,7 @@ class APIController {
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/metadata")
+    @GetMapping("/metadata",produces = arrayOf("application/json"))
     fun getMetaData(): String {
 
         return File("meta.json").readText()
