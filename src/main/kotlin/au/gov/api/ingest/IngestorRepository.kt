@@ -33,6 +33,7 @@ class IngestorRepository {
 
     @Scheduled(fixedRate = 1800000)
     fun runScheduledPollEvents() {
+        println("Executing scheduled tasks...")
         var manifests = findAll()
         var pipelines: MutableList<PipelineBuilder> = mutableListOf()
         manifests.forEach { pipelines.add(PipelineBuilder(it)) }
