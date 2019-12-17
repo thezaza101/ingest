@@ -82,6 +82,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         val pages = getSDPages()
         val logo = manifest.metadata.logo ?: ""
         val space = manifest.metadata.features.space ?: ""
+        var agencyAcr = manifest.metadata.features.agencyAcr ?: ""
         var insrc = ""
         if (manifest.assets.size > manifest.assetIdx) {
             val asset = manifest.assets[manifest.assetIdx]
@@ -89,7 +90,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         }
         val vis = true
 
-        outputSd = ServiceDescription(id, name, description, pages, getTags(), logo, "", insrc, space, vis)
+        outputSd = ServiceDescription(id, name, description, pages, getTags(), logo, agencyAcr, insrc, space, vis)
     }
 
     override fun getOutput(): Any {
@@ -144,6 +145,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         if (manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
         if (manifest.metadata.features.technology != null) tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
         if (manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        if (manifest.metadata.features.agencyAcr != null)  tags.add("AgencyAcr:${manifest.metadata.features.agencyAcr!!.capitalize()}")
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }

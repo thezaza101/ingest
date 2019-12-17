@@ -53,6 +53,11 @@ class APIController {
                 mf.metadata.id = pipeOutputs.first().toString()
             }
 
+            if (!preview) {
+                repository.save(mf)
+                println("Saved Manifest for \"${mf.metadata.name}\" with id: ${mf.metadata.id}")
+            }
+
             logEvent(request, "Posted", "Manifest", mf.metadata.name!!, "Posted", ObjectMapper().writeValueAsString(mf))
 
             return ObjectMapper().writeValueAsString(pipeOutputs)
