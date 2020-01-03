@@ -167,7 +167,8 @@ class IngestorRepository {
                     rs.getString("timestamp"),
                     rs.getString("filename"),
                     rs.getString("type"),
-                    rs.getString("data"))
+                    java.util.Base64.getDecoder().decode(
+                            rs.getString("data").toByteArray()).toString(charset = Charsets.UTF_8))
 
         } catch (e: Exception) {
             e.printStackTrace()

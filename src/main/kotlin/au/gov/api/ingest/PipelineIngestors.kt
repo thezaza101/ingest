@@ -37,7 +37,7 @@ class ServiceDescriptionIngestor() : Ingestor() {
                 if (x.text != manifest.metadata.id) {
                     var delUri = "$logURL/${x.text}"
                     var del = khttp.delete(delUri, auth = GetAuth())
-                    throw KeyException("ID mismatch between manifest and repository")
+                    throw KeyException("ID mismatch between manifest and repository") as Throwable
                 }
             }
             manifest.metadata.id = x.text
