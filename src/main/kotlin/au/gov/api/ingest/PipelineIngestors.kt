@@ -5,10 +5,8 @@ import au.gov.api.ingest.preview.IngestImpl
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
-import com.fasterxml.jackson.databind.ObjectMapper
 import khttp.structures.authorization.BasicAuthorization
 import java.security.KeyException
-import java.lang.Exception
 
 abstract class Ingestor : PipeObject() {
     override val type: PipeType = PipeType.Ingestor
@@ -32,7 +30,7 @@ class ServiceDescriptionIngestor() : Ingestor() {
         println("${serviceDescription.name}:${x.statusCode}")
 
         //Update the manifest id for new services
-        if (x.statusCode==201) {
+        if (x.statusCode == 201) {
             if (!manifest.metadata.id.isNullOrEmpty()) {
                 if (x.text != manifest.metadata.id) {
                     var delUri = "$logURL/${x.text}"
@@ -44,7 +42,7 @@ class ServiceDescriptionIngestor() : Ingestor() {
             val manifestURI = Config.get("Ingest") + "manifest?update=true"
 
             var y = khttp.post(manifestURI, auth = GetAuth(), json = parser.parse(StringBuilder(Klaxon().toJsonString(manifest))) as JsonObject)
-            if (y.statusCode!=200) {
+            if (y.statusCode != 200) {
                 println("Failed to update id for ${x.text}")
             } else {
                 println("Updated id for ${x.text}")
