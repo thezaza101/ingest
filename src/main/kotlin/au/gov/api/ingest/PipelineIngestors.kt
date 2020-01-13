@@ -66,7 +66,7 @@ class ServiceDescriptionIngestorPreview() : Ingestor() {
     }
 
     override fun execute() {
-        output = StringBuilder(Klaxon().toJsonString(serviceDescription)).toString()
+        output = Klaxon().toJsonString(serviceDescription)
     }
 }
 

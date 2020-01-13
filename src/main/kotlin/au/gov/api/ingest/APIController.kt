@@ -34,7 +34,7 @@ class APIController {
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/manifest")
+    @PostMapping("/manifest", produces = arrayOf("application/json"))
     fun setManifest(request: HttpServletRequest, @RequestBody mf: Manifest,
                     @RequestParam(required = false, defaultValue = "false") preview: Boolean,
                     @RequestParam(required = false, defaultValue = "false") update: Boolean): String {
@@ -60,7 +60,7 @@ class APIController {
 
             logEvent(request, "Posted", "Manifest", mf.metadata.name!!, "Posted", ObjectMapper().writeValueAsString(mf))
 
-            return ObjectMapper().writeValueAsString(pipeOutputs)
+            return pipeOutputs.last() as String
         } else {
             throw Unauthorised()
         }
