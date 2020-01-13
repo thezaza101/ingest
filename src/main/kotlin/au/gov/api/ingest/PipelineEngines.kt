@@ -82,6 +82,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         val pages = getSDPages()
         val logo = manifest.metadata.logo ?: ""
         val space = manifest.metadata.features.space ?: ""
+        var agencyAcr = manifest.metadata.features.agencyAcr ?: ""
         var insrc = ""
         if (manifest.assets.size > manifest.assetIdx) {
             val asset = manifest.assets[manifest.assetIdx]
@@ -89,7 +90,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         }
         val vis = true
 
-        outputSd = ServiceDescription(id, name, description, pages, getTags(), logo, "", insrc, space, vis)
+        outputSd = ServiceDescription(id, name, description, pages, getTags(), logo, agencyAcr, insrc, space, vis)
     }
 
     override fun getOutput(): Any {
@@ -144,6 +145,7 @@ class SingleMarkdownToServiceDesignEngine : Engine() {
         if (manifest.metadata.features.security != null) tags.add("Security:${manifest.metadata.features.security!!.capitalize()}")
         if (manifest.metadata.features.technology != null) tags.add("Technology:${manifest.metadata.features.technology!!.capitalize()}")
         if (manifest.metadata.features.status != null) tags.add("Status:${manifest.metadata.features.status!!.capitalize()}")
+        if (manifest.metadata.features.agencyAcr != null) tags.add("AgencyAcr:${manifest.metadata.features.agencyAcr!!.capitalize()}")
         manifest.metadata.tags.forEach { tags.add(it.capitalize()) }
         return tags
     }
@@ -423,13 +425,43 @@ class WSDLEngine : Engine() {
 
 @EngineImpl("markdown",
         "markdown",
+        "Extracts headings from a markdown file")
+class ExtractMarkdownHeadersEngine() : Engine() {
+    var level: Int = 1
+    override fun execute() {
+        level = if (config != null && config!!.containsKey("level")) config!!["level"]!!.toInt() else 1
+        val builder = StringBuilder()
+        getSDPages().forEach { builder.append("$it;") }
+        output = builder.toString()
+    }
+
+    fun getSDPages(): List<String> {
+        var content = inputData
+        val thePages = search(level, content.lines())
+        return thePages
+    }
+
+    val regex = "^([#]+).*".toRegex()
+
+    fun search(level: Int, content: List<String>): List<String> {
+        return content.map { it to determineHeader(it) }
+                .filter { it.second in 0..level }
+                .map { it.first } // get the content
+    }
+
+    private fun determineHeader(line: String): Int {
+        val result = regex.matchEntire(line) ?: return -1
+        return result.groupValues[1].length
+    }
+}
+
+
+@EngineImpl("markdown",
+        "markdown",
         "Modifies the input based on configuration")
-class ModifyText() : Engine() {
+class ModifyTextEngine() : Engine() {
     override fun execute() {
         //TODO
-        val ConvertURI = Config.get("DocConverter")
-        val url = "${ConvertURI}pandoc?format=docx&toFormat=gfm&tryExtractImages=true"
-        val resp = khttp.post(url, data = ByteArrayInputStream(Base64.getDecoder().decode(inputData)), headers = mapOf("Content-Type" to "application/octet-stream"))
-        output = resp.text
+
     }
 }
