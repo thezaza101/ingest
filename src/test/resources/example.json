@@ -1,38 +1,55 @@
 {
-	"metadata": {
-		"id": "5b3eb4707d0e99000457ffa5",
-		"name": "Definitions Catalogue",
-		"description": "The Definitions Catalogue Rest API allows you to search and browse for data definitions used by the Australian Government",
-		"logo": "https://api.gov.au/img/catalogue_brand.png",
-		"features": {
-			"security": "Open",
-			"technology": "REST/JSON",
-			"space": "apigovau",
-			"status": "published"
-		},
-		"tags": [
-			"metadata",
-			"definitions"
-		],
-		"topics": [
-			"wofg",
-			"api.gov.au"
-		]
-	},
-	"assets":[
-		{
-			"type":"api_description",
-			"misc":[],
-			"engine":{
-				"names":["StripFrontMatter","SingleMarkdownToServiceDesign"],
-				"resources":[
-					{
-						"role":"markdown",
-						"uri":"https://raw.githubusercontent.com/thezaza101/api-gov-au-definitions/master/api-documentation.md",
-						"mechanism":"poll"
-					}
-				]
-			}
-		}
-	]
+  "metadata": {
+    "id": "5b3eb4707d0e99000457ffa5",
+    "name": "Definitions Catalogue",
+    "description": "The Definitions Catalogue Rest API allows you to search and browse for data definitions used by the Australian Government",
+    "logo": "https://api.gov.au/img/catalogue_brand.png",
+    "features": {
+      "security": "Open",
+      "technology": "REST/JSON",
+      "space": "apigovau",
+      "status": "published"
+    },
+    "tags": [
+      "metadata",
+      "definitions"
+    ],
+    "topics": [
+      "wofg",
+      "api.gov.au"
+    ]
+  },
+  "assets": [
+    {
+      "type": "api_description",
+      "misc": [],
+      "engine": {
+        "steps": [
+          {
+            "name": "StripFrontMatter",
+            "input": [
+              "md1"
+            ],
+            "output": "md2",
+            "config": {}
+          },
+          {
+            "name": "SingleMarkdownToServiceDesign",
+            "input": [
+              "md2"
+            ],
+            "output": "api_description",
+            "config": {}
+          }
+        ],
+        "resources": [
+          {
+            "id": "md1",
+            "uri": "https://raw.githubusercontent.com/thezaza101/api-gov-au-definitions/master/api-documentation.md",
+            "mechanism": "poll"
+          }
+        ]
+      }
+    }
+  ]
 }
