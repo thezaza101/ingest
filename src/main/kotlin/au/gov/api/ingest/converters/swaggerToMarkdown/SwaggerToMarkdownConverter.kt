@@ -38,13 +38,10 @@ class SwaggerToMarkdownConverter(document: ObjectDocument, config: ObjectDocumen
         var element: MarkdownGenerator
         var elementName = (elementDef["name"] as String).toUpperCase()
 
-
         when (elementName) {
             "TEXT" -> {
                 var value = (elementDef["value"] as String)
                 if (dataSource.isPath(value)) value = "$parentPath$value"
-
-
 
                 if (value.startsWith("\$KEY")) {
                     var splitter = value.substring(value.indexOf('[') + 1, value.indexOf('[') + 2)
@@ -98,7 +95,6 @@ class SwaggerToMarkdownConverter(document: ObjectDocument, config: ObjectDocumen
                             )
                     )
                 }
-
             }
             "MARKDOWNSECTIONS" -> {
                 element = MarkdownSection(parentPath, listOf(), dataSource)
@@ -111,7 +107,6 @@ class SwaggerToMarkdownConverter(document: ObjectDocument, config: ObjectDocumen
                     }
                 }
             }
-
             else -> element = MarkdownSection("", listOf(), dataSource)
         }
         return element

@@ -2,6 +2,7 @@ package au.gov.api.ingest.converters.models
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import java.io.File
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
@@ -115,6 +116,9 @@ class ObjectDocument : DataSource {
         val obj: Any = yamlReader.readValue(yaml, Any::class.java)
         val jsonWriter = ObjectMapper()
         return jsonWriter.writeValueAsString(obj)
+    }
+    companion object {
+        fun readFileAsText(fileName: String): String = File(fileName).readText(Charsets.UTF_8)
     }
 
 
