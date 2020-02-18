@@ -117,6 +117,7 @@ class ObjectDocument : DataSource {
         val jsonWriter = ObjectMapper()
         return jsonWriter.writeValueAsString(obj)
     }
+
     companion object {
         fun readFileAsText(fileName: String): String = File(fileName).readText(Charsets.UTF_8)
     }

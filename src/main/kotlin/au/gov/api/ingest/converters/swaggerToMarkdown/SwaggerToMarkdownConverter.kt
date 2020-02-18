@@ -9,7 +9,7 @@ class SwaggerToMarkdownConverter(document: ObjectDocument, config: ObjectDocumen
     var ds = document
     var cfg = config
 
-    fun convert() : String = generateMarkdownConfig(cfg,ds).generateString()
+    fun convert(): String = generateMarkdownConfig(cfg, ds).generateString()
 
     fun generateMarkdownConfig(config: ObjectDocument, dataSource: DataSource): MarkdownGenerator {
         var dc = config.getValue(".documentConfig") as List<LinkedHashMap<String, *>>
