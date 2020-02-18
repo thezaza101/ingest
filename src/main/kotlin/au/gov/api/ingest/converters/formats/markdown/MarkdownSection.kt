@@ -8,7 +8,17 @@ class MarkdownSection(basePath: String, innerSections: List<MarkdownGenerator>, 
     var innerMDG: MutableList<MarkdownGenerator> = innerSections.toMutableList()
     override fun generateString(): String {
         var sb: StringBuilder = StringBuilder()
-        innerMDG.forEach { sb.append(it.generateString()) }
+        var prod = true
+        if (prod) {
+            try {
+                innerMDG.forEach { sb.append(it.generateString()) }
+            } catch (e: Exception) {
+                println(e)
+                return ""
+            }
+        } else {
+            innerMDG.forEach { sb.append(it.generateString()) }
+        }
         return sb.toString()
     }
 

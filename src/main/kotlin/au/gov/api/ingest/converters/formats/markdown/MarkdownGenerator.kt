@@ -1,10 +1,13 @@
 package au.gov.api.ingest.converters.formats.markdown
 
 import au.gov.api.ingest.converters.models.DataSource
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 
 abstract class MarkdownGenerator(source: DataSource) {
+    @JsonIgnore
     open var ds = source
+
     abstract fun generateString(): String
 
     fun formatText(text: String, fmt: MDTextFormats, newLine: Boolean = true, userFormat: String = ""): String {
@@ -26,6 +29,4 @@ abstract class MarkdownGenerator(source: DataSource) {
             else -> "$text$nl"
         }
     }
-
-
 }
