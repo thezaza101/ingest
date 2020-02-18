@@ -1,15 +1,20 @@
 package au.gov.api.ingest
 
 import au.gov.api.config.Config
+import au.gov.api.ingest.converters.models.ObjectDocument
+import au.gov.api.ingest.converters.swaggerToMarkdown.SwaggerToMarkdownConverter
 import au.gov.api.ingest.preview.EngineImpl
 import io.github.swagger2markup.Swagger2MarkupConverter
 import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
 import org.apache.commons.configuration2.builder.fluent.Configurations
 import org.ow2.easywsdl.wsdl.WSDLFactory
 import org.ow2.easywsdl.wsdl.api.Description
+import org.springframework.core.io.ClassPathResource
+import org.springframework.util.FileCopyUtils
 import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
 import java.io.StringReader
+import java.nio.charset.StandardCharsets
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -282,12 +287,16 @@ class MergeMarkdownEngine() : Engine() {
         "Converts swagger documents to markdown")
 class SwaggerToMarkdownEngine() : Engine() {
     override fun execute() {
-        var configs = Configurations().properties("config.properties")
-        var swagger2MarkupConfig = Swagger2MarkupConfigBuilder(configs).build()
-        var converterBuilder = Swagger2MarkupConverter.from(inputData)
-        converterBuilder.withConfig(swagger2MarkupConfig)
-        var converter = converterBuilder.build()
-        output = getPagesFromSwagger(converter.toString())
+        var isYaml = !inputData.trim().startsWith('{')
+        var document = ObjectDocument(inputData,isYaml)
+        var swaggerVersion = 2
+        try {
+            swaggerVersion = (document.getValue(".openapi") as String).split('.').first().toInt()
+        } catch (e:Exception) {}
+
+        var configFile = String(FileCopyUtils.copyToByteArray(ClassPathResource("SwaggerMdConfig.$swaggerVersion.json").inputStream), StandardCharsets.UTF_8)
+        var config = ObjectDocument(configFile, false)
+        output = SwaggerToMarkdownConverter(document, config).convert()
     }
 
     private fun getPagesFromSwagger(swaggerJson: String): String {

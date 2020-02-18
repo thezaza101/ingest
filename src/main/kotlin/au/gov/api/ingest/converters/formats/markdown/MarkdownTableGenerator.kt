@@ -27,7 +27,7 @@ class MarkdownTableGenerator(
 
         if (columnKeyAsValue == null) columnKeyAsValue = List<Boolean>(headers.count()) { false }
 
-        var colWidth = 300
+        var colWidth = 150
         var sb: StringBuilder = StringBuilder()
         val numCols = headers.count()
 
