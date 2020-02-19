@@ -109,7 +109,7 @@ class APIController {
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/metadata",produces = arrayOf("application/json"))
+    @GetMapping("/metadata", produces = arrayOf("application/json"))
     fun getMetaData(): String {
 
         return File("meta.json").readText()
@@ -196,7 +196,7 @@ class APIController {
 
             // http://www.baeldung.com/get-user-in-spring-security
             val raw = request.getHeader("authorization")
-                if (raw == null) return false;
+            if (raw == null) return false;
             val apikey = String(Base64.getDecoder().decode(raw.removePrefix("Basic ")))
 
             val user = apikey.split(":")[0]

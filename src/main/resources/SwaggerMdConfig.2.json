@@ -1,0 +1,318 @@
+{
+	"swaggerVersion": 3.0,
+	"documentConfig": [
+		{
+			"name": "MarkdownSection",
+			"desc":"Overview",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Overview",
+					"format": "H1",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.description",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Version: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.version",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
+			"desc":"Version information",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Version information",
+					"format": "H2",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Version: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.version",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
+			"desc":"Contact information",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Contact information",
+					"format": "H2",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Email: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.contact.email",
+					"format": "USERDEFINED",
+					"newLine": true,
+					"formatString": "[%](mailto:%)"
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
+			"desc":"License information",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "License information",
+					"format": "H2",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Name: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.license.name",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Url: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.license.url",
+					"format": "USERDEFINED",
+					"newLine": true,
+					"formatString": "[%](%)"
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
+			"desc":"Paths",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Paths",
+					"format": "H1",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "MarkdownSections",
+					"desc":"IndvPaths",
+					"path": ".paths.[*].[*]",
+					"innerSections": [
+						{
+							"name": "Text",
+							"value": ".summary",
+							"format": "H2",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": "$KEY.[.].[-1]",
+							"format": "CODE",
+							"newLine": false,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": " ",
+							"format": "NONE",
+							"newLine": false,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": "$KEY.[.].[-2]",
+							"format": "CODE",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": "Parameters",
+							"format": "H3",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Table",
+							"headings":["Where", "Name", "Description", "Schema", "Required"],
+							"values": [".parameters.[*].in",".parameters.[*].name",".parameters.[*].description",".parameters.[*].type",".parameters.[*].required"],
+							"colAlignments":["LEFT","LEFT","LEFT","LEFT","LEFT"],
+							"colAsKeys":[false,false,false,false,false]
+						},
+						{
+							"name": "Text",
+							"value": "",
+							"format": "NONE",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": "Responses",
+							"format": "H3",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Table",
+							"headings":["HTTP Code", "Description", "Schema"],
+							"values": [".responses.[*]",".responses.[*].description",".responses.[*].schema.$ref"],
+							"colAlignments":["LEFT","LEFT","LEFT"],
+							"colAsKeys":[true,false,false]
+						},
+						{
+							"name": "Text",
+							"value": "",
+							"format": "NONE",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Text",
+							"value": "Tags",
+							"format": "H3",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "List",
+							"value": ".tags",
+							"listType":"BULLET"
+						},
+						{
+							"name": "Text",
+							"value": "",
+							"format": "NONE",
+							"newLine": true,
+							"formatString": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
+			"desc":"Schemas",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Schema",
+					"format": "H1",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "MarkdownSections",
+					"desc":"IndvSchemas",
+					"path": ".definitions.[*]",
+					"innerSections": [
+						{
+							"name": "Text",
+							"value": "$KEY.[.].[-1]",
+							"format": "H2",
+							"newLine": true,
+							"formatString": ""
+						},
+						{
+							"name": "Table",
+							"headings":["Name", "Data Type"],
+							"values": [".properties.[*]",".properties.[*].[*]"],
+							"colAlignments":["LEFT","LEFT"],
+							"colAsKeys":[true,false]
+						},
+						{
+							"name": "Text",
+							"value": "",
+							"format": "NONE",
+							"newLine": true,
+							"formatString": ""
+						}
+					]
+				}
+			]
+		}
+	]
+}
