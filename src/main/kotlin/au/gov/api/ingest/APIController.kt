@@ -1,6 +1,8 @@
 package au.gov.api.ingest
 
 import au.gov.api.config.Config
+import au.gov.api.ingest.helpers.PaginationResult
+import au.gov.api.ingest.helpers.URLHelper
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
@@ -31,6 +33,12 @@ class APIController {
 
     @Autowired
     private lateinit var repository: IngestorRepository
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    class InvallidRequest(override val message: String?) : java.lang.Exception()
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    class NoContentFound(override val message: String?) : java.lang.Exception()
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
@@ -65,6 +73,57 @@ class APIController {
             throw Unauthorised()
         }
     }
+
+
+    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/listFiles")
+    fun listFile(request: HttpServletRequest, @RequestParam(defaultValue = "20") size: Int,
+                 @RequestParam(defaultValue = "1") page: Int,
+                 @RequestParam(required = false, defaultValue = "true") sort: Boolean): PaginationResult<FileData> {
+        val key = getKeyFromRequest(request)
+        var fullList = repository.findFileByKey(key)
+
+        return PaginationResult(getFilesHATEOS(fullList, sort, size, page), URLHelper().getURL(request), fullList.count())
+    }
+
+    fun getFilesHATEOS(files: List<FileData>, sort: Boolean = false, size: Int = 10, page: Int = 1): List<FileData> {
+        var completeList = files.toMutableList()
+        if (sort) {
+            completeList = completeList.sortedBy { it.timestamp }.toMutableList()
+        }
+
+
+        var pageStart = page - 1
+        if (page > 1) pageStart = size * pageStart
+        var pageEnd = pageStart + size
+
+        if (pageStart > completeList.count()) {
+            if (page > 1) {
+                throw InvallidRequest("No content found at page $page")
+            } else {
+                throw NoContentFound("This user has not uploaded any files")
+            }
+        }
+        if (pageEnd > completeList.count()) {
+            if (page > 1) {
+                if ((pageEnd - pageStart) <= completeList.count()) {
+                    pageEnd = completeList.count()
+                } else {
+                    throw InvallidRequest("No content found at page $page")
+                }
+            } else {
+                if (pageStart == 0) {
+                    pageEnd = completeList.count()
+                } else {
+                    throw InvallidRequest("No content found at page $page")
+                }
+            }
+        }
+
+        return completeList.subList(pageStart, pageEnd)
+    }
+
 
     @CrossOrigin
     @ResponseStatus(HttpStatus.OK)
