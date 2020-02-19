@@ -75,7 +75,7 @@ class EngineTests {
         manifest.Pipes.first().pipeline[4].execute()
         var mergedmd = ((manifest.Pipes.first().pipeline[4] as Engine).getOutput() as String).trim()
         manifest.Pipes.first().ingestObjs.add(Pair((manifest.Pipes.first().pipeline[4] as Engine).outputId, swaggermd))
-        Assert.assertTrue(mergedmd.contains("*Version* : 1.0.0"))
+        Assert.assertTrue(mergedmd.contains("__Version: __1.0.0"))
         Assert.assertTrue(mergedmd.contains("# Getting Started"))
     }
 
