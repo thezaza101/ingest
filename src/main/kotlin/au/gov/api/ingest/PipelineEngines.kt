@@ -4,9 +4,6 @@ import au.gov.api.config.Config
 import au.gov.api.ingest.converters.models.ObjectDocument
 import au.gov.api.ingest.converters.swaggerToMarkdown.SwaggerToMarkdownConverter
 import au.gov.api.ingest.preview.EngineImpl
-import io.github.swagger2markup.Swagger2MarkupConverter
-import io.github.swagger2markup.builder.Swagger2MarkupConfigBuilder
-import org.apache.commons.configuration2.builder.fluent.Configurations
 import org.ow2.easywsdl.wsdl.WSDLFactory
 import org.ow2.easywsdl.wsdl.api.Description
 import org.springframework.core.io.ClassPathResource
@@ -286,15 +283,30 @@ class MergeMarkdownEngine() : Engine() {
         "markdown",
         "Converts swagger documents to markdown")
 class SwaggerToMarkdownEngine() : Engine() {
+    var docConfig: String? = null
+
+    override fun setData(vararg input: Any) {
+        inputData = (input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
+                .first() as Pair<String, Any>).second.toString()
+
+        if (config!!.containsKey("docConfig")) {
+            docConfig = (input.filter { config!!["docConfig"].equals((it as Pair<String, Any>).first) }
+                    .first() as Pair<String, Any>).second.toString()
+        }
+
+    }
+
     override fun execute() {
         var isYaml = !inputData.trim().startsWith('{')
-        var document = ObjectDocument(inputData,isYaml)
+        var document = ObjectDocument(inputData, isYaml)
         var swaggerVersion = 2
         try {
             swaggerVersion = (document.getValue(".openapi") as String).split('.').first().toInt()
-        } catch (e:Exception) {}
+        } catch (e: Exception) {
+        }
+        var configFile = if (docConfig == null) String(FileCopyUtils.copyToByteArray(ClassPathResource("SwaggerMdConfig.$swaggerVersion.json").inputStream), StandardCharsets.UTF_8) else docConfig!!
 
-        var configFile = String(FileCopyUtils.copyToByteArray(ClassPathResource("SwaggerMdConfig.$swaggerVersion.json").inputStream), StandardCharsets.UTF_8)
+
         var config = ObjectDocument(configFile, false)
         output = SwaggerToMarkdownConverter(document, config).convert()
     }

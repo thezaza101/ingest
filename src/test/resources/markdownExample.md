@@ -13,7 +13,7 @@ tags:
  
  # MergeMapping
  # "# Getting Started" add "# Overview"
- # "# Posting" insertAfter "# Definitions"
+ # "# Posting" insertAfter "# Schema"
  # "# Posting" insertAfter "# Paths"
 ---
 

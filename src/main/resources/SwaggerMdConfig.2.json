@@ -3,6 +3,48 @@
 	"documentConfig": [
 		{
 			"name": "MarkdownSection",
+			"desc":"Overview",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Overview",
+					"format": "H1",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.description",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "Version: ",
+					"format": "BOLD",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.version",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
 			"desc":"Version information",
 			"path": "",
 			"innerSections": [
@@ -175,7 +217,7 @@
 						{
 							"name": "Table",
 							"headings":["Where", "Name", "Description", "Schema", "Required"],
-							"values": [".parameters.[*].in",".parameters.[*].name",".parameters.[*].description",".parameters.[*].schema.type",".parameters.[*].required"],
+							"values": [".parameters.[*].in",".parameters.[*].name",".parameters.[*].description",".parameters.[*].type",".parameters.[*].required"],
 							"colAlignments":["LEFT","LEFT","LEFT","LEFT","LEFT"],
 							"colAsKeys":[false,false,false,false,false]
 						},
@@ -196,7 +238,7 @@
 						{
 							"name": "Table",
 							"headings":["HTTP Code", "Description", "Schema"],
-							"values": [".responses.[*]",".responses.[*].description",".responses.[*].content.application/json.schema.$ref"],
+							"values": [".responses.[*]",".responses.[*].description",".responses.[*].schema.$ref"],
 							"colAlignments":["LEFT","LEFT","LEFT"],
 							"colAsKeys":[true,false,false]
 						},
@@ -245,7 +287,7 @@
 				{
 					"name": "MarkdownSections",
 					"desc":"IndvSchemas",
-					"path": ".components.schemas.[*]",
+					"path": ".definitions.[*]",
 					"innerSections": [
 						{
 							"name": "Text",

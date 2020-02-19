@@ -3,6 +3,34 @@
 	"documentConfig": [
 		{
 			"name": "MarkdownSection",
+			"desc":"Overview",
+			"path": "",
+			"innerSections": [
+				{
+					"name": "Text",
+					"value": "Overview",
+					"format": "H1",
+					"newLine": true,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": ".info.description",
+					"format": "NONE",
+					"newLine": false,
+					"formatString": ""
+				},
+				{
+					"name": "Text",
+					"value": "",
+					"format": "NONE",
+					"newLine": true,
+					"formatString": ""
+				}
+			]
+		},
+		{
+			"name": "MarkdownSection",
 			"desc":"Version information",
 			"path": "",
 			"innerSections": [
