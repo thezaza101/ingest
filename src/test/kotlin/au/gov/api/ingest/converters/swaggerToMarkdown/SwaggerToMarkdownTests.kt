@@ -130,7 +130,7 @@ class SwaggerToMarkdownTests {
                 MarkdownTextGenerator(".some_field", MDTextFormats.BOLD, docObj, false)
         ), docObj)
 
-        var expectedString = "# Hello\r\n__${text}__"
+        var expectedString = "# Hello${System.getProperty("line.separator")}__${text}__"
         var actualString = gen.generateString()
         Assert.assertEquals(expectedString, actualString)
 
