@@ -13,7 +13,7 @@ class MarkdownSection(basePath: String, innerSections: List<MarkdownGenerator>, 
             try {
                 innerMDG.forEach { sb.append(it.generateString()) }
             } catch (e: Exception) {
-                println(e)
+                println("Possible missing section \n ${e.toString()}")
                 return ""
             }
         } else {

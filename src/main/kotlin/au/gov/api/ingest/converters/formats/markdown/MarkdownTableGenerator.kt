@@ -54,7 +54,7 @@ class MarkdownTableGenerator(
                     sb.append("${colValue(currRow[c].split('.').last(), colWidth)}|")
                 }
 
-                println(currRow[c])
+                //println(currRow[c])
             }
             sb.append(System.lineSeparator())
         }
