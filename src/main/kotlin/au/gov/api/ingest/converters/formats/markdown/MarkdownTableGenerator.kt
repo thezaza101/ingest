@@ -1,7 +1,7 @@
 package au.gov.api.ingest.converters.formats.markdown
 
-import au.gov.api.ingest.converters.helpers.NestedListEnumerator
 import au.gov.api.ingest.converters.models.DataSource
+import au.gov.api.ingest.helpers.NestedListEnumerator
 
 class MarkdownTableGenerator(
         hedings: List<String>,

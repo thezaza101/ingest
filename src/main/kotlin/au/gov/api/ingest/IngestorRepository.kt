@@ -140,7 +140,7 @@ class IngestorRepository {
                         rs.getString("timestamp"),
                         rs.getString("filename"),
                         rs.getString("type"),
-                        rs.getString("data")))
+                        "${rs.getString("data").toByteArray().size} bytes"))
             }
 
             return rv
