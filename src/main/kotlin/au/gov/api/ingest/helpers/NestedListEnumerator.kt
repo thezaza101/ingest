@@ -1,4 +1,4 @@
-package au.gov.api.ingest.converters.helpers
+package au.gov.api.ingest.helpers
 
 class NestedListEnumerator<T>(val nestedList: List<List<T>>) : Iterator<List<T>> {
 

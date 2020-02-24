@@ -4,6 +4,7 @@ import au.gov.api.config.Config
 import au.gov.api.ingest.converters.models.ObjectDocument
 import au.gov.api.ingest.converters.swaggerToMarkdown.SwaggerToMarkdownConverter
 import au.gov.api.ingest.preview.EngineImpl
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.ow2.easywsdl.wsdl.WSDLFactory
 import org.ow2.easywsdl.wsdl.api.Description
 import org.springframework.core.io.ClassPathResource
@@ -167,6 +168,8 @@ class MergeMarkdownEngine() : Engine() {
         var to = ""
     }
 
+    data class MergeActions(val actionList: List<MergeAction>? = null)
+
     var mergeActions: List<MergeAction> = listOf()
 
     var mainMarkdown = ""
@@ -197,8 +200,13 @@ class MergeMarkdownEngine() : Engine() {
     }
 
     override fun setData(vararg input: Any) {
-        inputData = (input.filter { config!!["map"].equals((it as Pair<String, Any>).first) }
-                .first() as Pair<String, Any>).second.toString()
+        try {
+            inputData = (input.filter { config!!["map"].equals((it as Pair<String, Any>).first) }
+                    .first() as Pair<String, Any>).second.toString()
+        } catch (e: Exception) {
+            inputData = config!!["map"]!!
+        }
+
         inputData = getMappingString(inputData)
         mergeActions = parseMappingAction(inputData)
         var lastTwo = input.filter { inputIds!!.contains((it as Pair<String, Any>).first) }
@@ -207,57 +215,19 @@ class MergeMarkdownEngine() : Engine() {
     }
 
     private fun getMappingString(input: String): String {
-        var contentStart = input.indexOf("# MergeMapping")
-        var contentEnd = input.indexOf("---", input.indexOf("---") + 3)
-        var releventString = input.substring(contentStart, contentEnd)
-        return releventString
+        if (input.startsWith('{')) {
+            return input
+        } else {
+            var contentStart = input.indexOf("# MergeMapping") + 14
+            var contentEnd = input.indexOf("---", input.indexOf("---") + 3)
+            var releventString = input.substring(contentStart, contentEnd).trim()
+            return releventString
+        }
     }
 
     private fun parseMappingAction(input: String): List<MergeAction> {
-        var maps: MutableList<String> = mutableListOf()
-        var tempStr = ""
-        var tempActionStr = ""
-        var inQuotes = false
-        input.forEach {
-            if (it.equals('\"')) {
-                inQuotes = !inQuotes
-                if (tempStr.trim().isNotBlank()) {
-                    maps.add(tempStr.replace("\"", "").trim())
-                }
-                if (tempActionStr.trim().isNotBlank()) {
-                    maps.add(tempActionStr.replace("\"", "").trim())
-                    tempActionStr = ""
-                }
-                tempStr = ""
-            }
-            if (inQuotes) {
-                tempStr += it
-            } else {
-                if (maps.count() > 0) {
-                    tempActionStr += it
-                }
-            }
-        }
-        var tempMaps: MutableList<String> = mutableListOf()
-        var output: MutableList<MergeAction> = mutableListOf()
-
-        maps.forEach {
-            if (it.count() > 1) {
-                tempMaps.add(it)
-            }
-        }
-        maps = tempMaps
-
-        var i = 0
-        while (i < maps.count()) {
-            var tempAction: MergeAction = MergeAction()
-            tempAction.from = maps[i]
-            tempAction.action = MergeType.valueOf(maps[i + 1])
-            tempAction.to = maps[i + 2]
-            output.add(tempAction)
-            i += 3
-        }
-        return output.toList()
+        val actions = ObjectMapper().readValue(input, MergeActions::class.java)
+        return actions.actionList!!
     }
 
     private fun getLevel(input: String): String {
@@ -278,6 +248,7 @@ class MergeMarkdownEngine() : Engine() {
         return thePages
     }
 }
+
 
 @EngineImpl("swagger",
         "markdown",
