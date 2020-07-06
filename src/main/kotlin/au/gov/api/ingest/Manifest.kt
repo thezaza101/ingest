@@ -35,6 +35,7 @@ class Features {
     var technology: String? = null
     var status: String? = null
     var space: String? = null
+    var agencyAcr: String? = null
 
 }
 
